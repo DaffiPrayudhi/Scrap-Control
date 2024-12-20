@@ -86,6 +86,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
+<<<<<<< HEAD
                             <a href="<?= base_url('admnscrap/dashboardscrap_fa_price'); ?>" class="nav-link">
                                 <i class="nav-icon fas fa-tv"></i>
                                 <p>
@@ -94,6 +95,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
+=======
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
                             <a href="<?= base_url('admnscrap/part_number_scrap_bd'); ?>" class="nav-link">
                                 <i class="fas fa-edit nav-icon"></i>
                                 <p>Input Part Scrap</p>

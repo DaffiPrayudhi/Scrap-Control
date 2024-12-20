@@ -26,9 +26,15 @@ class Database extends Config
      */
     public array $default = [
         'DSN'          => '',
+<<<<<<< HEAD
         'hostname'     => 'AVICTR1HRGN003\SQLEXPRESS',
         'username'     => 'sa',
         'password'     => 'Visteon123456789',
+=======
+        'hostname'     => '10.14.81.43',
+        'username'     => 'aviadmin',
+        'password'     => 'zdr12cs!',
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
         'database'     => 'cias',
         'DBDriver'     => 'sqlserv',
         'DBPrefix'     => '',

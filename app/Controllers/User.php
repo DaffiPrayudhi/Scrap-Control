@@ -365,6 +365,7 @@ class User extends Controller
         return view('admnscrap/dashboardscrap_fa', $data);
     }
 
+<<<<<<< HEAD
     public function admnscrapDashboardFA_price()
     {
         $session = session();
@@ -455,6 +456,8 @@ class User extends Controller
         return view('admnscrap/dashboardscrap_fa_price', $data);
     }
 
+=======
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
     public function part_number_scrap()
     {
         $userModel = new UserModel();
@@ -1159,6 +1162,7 @@ class User extends Controller
             'qty' => $this->request->getPost('qty'),
         ];
 
+<<<<<<< HEAD
         $partNumberKompModel = new PartNumberKompModel();
             $hargaData = $partNumberKompModel->where([
                 'model' => $data['model'],
@@ -1182,6 +1186,15 @@ class User extends Controller
             }
         } else {
             session()->setFlashdata('error', 'Harga untuk part_number tidak ditemukan.');
+=======
+        if ($this->UserModelFA->insert($data)) {
+            session()->set('form_data', $data);
+
+            session()->setFlashdata('success', 'Data Berhasil Disimpan.');
+            return redirect()->to('admnscrap/part_number_scrap_db');
+        } else {
+            session()->setFlashdata('error', 'Data Gagal Untuk Disimpan.');
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
             return redirect()->back()->withInput();
         }
     }
@@ -1549,12 +1562,15 @@ class User extends Controller
         $partNumbers = $this->PartNumberKompModel->getPartNumbersByKomponen($model, $komponen);
         return $this->response->setJSON(['part_numbers' => $partNumbers]);
     }
+<<<<<<< HEAD
 
     public function getPartNumbersByKomponen($model, $komponen)
     {
         $partNumbers = $this->UserModelFA->getPartNumbersByModelAndKomponen($model, $komponen);
         return $this->response->setJSON(['part_numbers' => $partNumbers]);
     }   
+=======
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
     
 
     public function get_record()

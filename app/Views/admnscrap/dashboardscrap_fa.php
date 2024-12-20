@@ -112,6 +112,7 @@ Dashboard Scrap Control
                         </div>
                     </div>
                     <div class="card-body card-b-qty">
+<<<<<<< HEAD
                         <p><strong>Line:</strong> <?= esc($filters['line']) ?: 'All' ?></p>
                         <p><strong>Model:</strong> <?= esc($filters['model']) ?: 'All' ?></p>
                         <p><strong>Komponen:</strong> <?= esc($filters['komponen']) ?: 'All' ?></p>
@@ -123,6 +124,19 @@ Dashboard Scrap Control
                         </div>
                     </div>
                 </div>
+=======
+                    <p><strong>Line:</strong> <?= esc($filters['line']) ?: 'All' ?></p>
+                    <p><strong>Model:</strong> <?= esc($filters['model']) ?: 'All' ?></p>
+                    <p><strong>Komponen:</strong> <?= esc($filters['komponen']) ?: 'All' ?></p>
+                    <p><strong>Tipe NG:</strong> <?= esc($filters['tipe_ng']) ?: 'All' ?></p>
+                    <hr>
+                    <div class="total-quantity-container">
+                        <div class="total-quantity-label">Total :</div>
+                        <div class="total-quantity-value"><?= esc($totalQty) ?></div>
+                    </div>
+                </div>
+                </div>
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
 
                 <div class="card card-qty card-mt-3">
                     <div class="card-header card-qty">

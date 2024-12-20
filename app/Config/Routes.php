@@ -57,7 +57,10 @@ $routes->get('user/getModelsByFAL6/(:any)', 'User::getModelsByFAL6/$1');
 $routes->get('user/getTipeNgByMesin/(:segment)', 'User::getTipeNgByMesin/$1');
 $routes->get('user/getKomponenByModelFA/(:any)', 'User::getKomponenByModelFA/$1'); 
 $routes->get('user/getModelByLine/(:segment)', 'User::getModelByLine/$1');
+<<<<<<< HEAD
 $routes->get('user/getPartNumbersByKomponen/(:any)', 'User::getPartNumbersByKomponen/$1');
+=======
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
 $routes->get('user/getPartNumbersByKomponenFA/(:any)', 'User::getPartNumbersByKomponenFA/$1');
 $routes->get('user/chartData', 'User::chartData'); 
 $routes->get('user/getScrapChartData', 'User::getScrapChartData'); 
@@ -92,7 +95,10 @@ $routes->group('admnfa', ['filter' => 'authRole:2'], function ($routes) {
 $routes->group('admnscrap', ['filter' => 'authRole:3'], function ($routes) {
     $routes->get('dashboardscrap_smt', 'User::admnscrapDashboard');
     $routes->get('dashboardscrap_fa', 'User::admnscrapDashboardFA');
+<<<<<<< HEAD
     $routes->get('dashboardscrap_fa_price', 'User::admnscrapDashboardFA_price');
+=======
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
     $routes->get('part_number_scrap_db', 'User::part_number_scrap_db');
     $routes->get('part_number_scrap_bd', 'User::part_number_scrap_bd');
     $routes->get('part_number_baru', 'User::part_number_baru');

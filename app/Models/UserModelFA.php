@@ -11,7 +11,11 @@ class UserModelFA extends Model
 
     protected $returnType = 'array';
 
+<<<<<<< HEAD
     protected $allowedFields = ['id', 'tgl_bln_thn', 'shift', 'model','line','komponen', 'part_number','tipe_ng','remarks','qty', 'total_harga'];
+=======
+    protected $allowedFields = ['id', 'tgl_bln_thn', 'shift', 'model','line','komponen', 'part_number','tipe_ng','remarks','qty'];
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
 
     public function getModelsByLine($line)
     {
@@ -790,6 +794,7 @@ class UserModelFA extends Model
                         ->getResultArray();
     }
 
+<<<<<<< HEAD
     public function getPartNumbersByModelAndKomponen($model, $komponen)
     {
         return $this->db->table('part_number_komponen')     
@@ -802,6 +807,8 @@ class UserModelFA extends Model
     }
 
 
+=======
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
     public function getFilteredModels($line)
     {
         return $this->where('line', $line)->distinct()->findAll();
@@ -823,6 +830,7 @@ class UserModelFA extends Model
     }
 
     public function deleteRecord($id)
+<<<<<<< HEAD
     {
         return $this->where('id', $id)->delete();
     }
@@ -869,5 +877,12 @@ class UserModelFA extends Model
                         ->get()
                         ->getRowArray();
     }
+=======
+{
+    return $this->where('id', $id)->delete();
+}
+    
+
+>>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
 
 }
