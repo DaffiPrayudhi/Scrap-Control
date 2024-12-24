@@ -11,11 +11,7 @@ class UserModelFA extends Model
 
     protected $returnType = 'array';
 
-<<<<<<< HEAD
-    protected $allowedFields = ['id', 'tgl_bln_thn', 'shift', 'model','line','komponen', 'part_number','tipe_ng','remarks','qty', 'total_harga'];
-=======
     protected $allowedFields = ['id', 'tgl_bln_thn', 'shift', 'model','line','komponen', 'part_number','tipe_ng','remarks','qty'];
->>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
 
     public function getModelsByLine($line)
     {
@@ -794,7 +790,6 @@ class UserModelFA extends Model
                         ->getResultArray();
     }
 
-<<<<<<< HEAD
     public function getPartNumbersByModelAndKomponen($model, $komponen)
     {
         return $this->db->table('part_number_komponen')     
@@ -807,8 +802,6 @@ class UserModelFA extends Model
     }
 
 
-=======
->>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
     public function getFilteredModels($line)
     {
         return $this->where('line', $line)->distinct()->findAll();
@@ -830,41 +823,51 @@ class UserModelFA extends Model
     }
 
     public function deleteRecord($id)
-<<<<<<< HEAD
     {
         return $this->where('id', $id)->delete();
     }
 
-    public function getFilteredScrapDataWithPrice($startDate, $endDate, $model, $komponen, $part_number, $tipe_ng, $line)
+    public function getFilteredScrapDataWithPrice($startDate, $endDate, $model = null, $komponen = null, $part_number = null, $tipe_ng = null, $line = null)
     {
         $builder = $this->db->table('scrap_control_fa')
-            ->select('scrap_control_fa.tgl_bln_thn, scrap_control_fa.qty, scrap_control_fa.model, scrap_control_fa.komponen, scrap_control_fa.part_number, part_number_komponen.harga, (scrap_control_fa.qty * part_number_komponen.harga) as total_harga')
-            ->join('part_number_komponen', 'scrap_control_fa.part_number = part_number_komponen.part_number')
+            ->select('scrap_control_fa.id, scrap_control_fa.tgl_bln_thn, scrap_control_fa.qty, scrap_control_fa.model, scrap_control_fa.komponen, scrap_control_fa.part_number, part_number_komponen.harga, (scrap_control_fa.qty * part_number_komponen.harga) as total_harga')
+            ->join('part_number_komponen', 'scrap_control_fa.part_number = part_number_komponen.part_number', 'inner')
             ->where('scrap_control_fa.tgl_bln_thn >=', $startDate)
             ->where('scrap_control_fa.tgl_bln_thn <=', $endDate);
-
-        if ($model) {
+    
+        if (!empty($model)) {
             $builder->where('scrap_control_fa.model', $model);
         }
-
-        if ($komponen) {
+    
+        if (!empty($komponen)) {
             $builder->where('scrap_control_fa.komponen', $komponen);
         }
-
-        if ($part_number) {
+    
+        if (!empty($part_number)) {
             $builder->where('scrap_control_fa.part_number', $part_number);
         }
-
-        if ($tipe_ng) {
+    
+        if (!empty($tipe_ng)) {
             $builder->where('scrap_control_fa.tipe_ng', $tipe_ng);
         }
-
-        if ($line) {
+    
+        if (!empty($line)) {
             $builder->where('scrap_control_fa.line', $line);
         }
-
+    
+        $builder->groupBy([
+            'scrap_control_fa.id',
+            'scrap_control_fa.tgl_bln_thn',
+            'scrap_control_fa.qty',
+            'scrap_control_fa.model',
+            'scrap_control_fa.komponen',
+            'scrap_control_fa.part_number',
+            'part_number_komponen.harga'
+        ]);
+    
         return $builder->get()->getResultArray();
     }
+    
 
 
     public function getHargaSatuan($model, $komponen, $part_number)
@@ -877,12 +880,5 @@ class UserModelFA extends Model
                         ->get()
                         ->getRowArray();
     }
-=======
-{
-    return $this->where('id', $id)->delete();
-}
-    
-
->>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
 
 }

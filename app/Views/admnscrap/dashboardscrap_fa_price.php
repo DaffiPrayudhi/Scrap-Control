@@ -16,14 +16,14 @@ Dashboard Scrap Control
                         <div class="container-fluid">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
-                                    <h3 class="card-title mb-0"><b>Grafik FA</b></h3>
+                                    <h3 class="card-title mb-0"><b>Grafik FA Price</b></h3>
                                     <div class="dropdown ml-2">
                                         <button class="btn btn-secondary btn-smsa dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-caret-down"></i>
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_smt') ?>">Dashboard Scrap SMT</a>
-                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_fa') ?>">Dashboard Scrap FA</a>
+                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_smt_price') ?>">Dashboard Scrap SMT Price</a>
+                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_fa_price') ?>">Dashboard Scrap FA Price</a>
                                         </div>
                                     </div>
                                 </div>
@@ -38,7 +38,7 @@ Dashboard Scrap Control
                         <div class="chart-container mt-2">
                             <form method="get" action="<?= site_url('admnscrap/dashboardscrap_fa_price') ?>" class="form-container">
                                 <div class="form-row">
-                                    <div class="form-group col-sm-1">
+                                    <div class="form-group col-md-1">
                                         <label for="start_date">Start</label>
                                         <input type="date" class="form-control" id="start_date" style="font-size: 14px" name="start_date" value="<?= esc($filters['start_date']) ?>">
                                     </div>
@@ -878,6 +878,5 @@ td.right-2 {
     }
 }
 </style>
-
 
 <?= $this->endSection(); ?>

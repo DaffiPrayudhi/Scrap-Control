@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $this->renderSection('title'); ?></title>
-    <!-- Include Bootstrap CSS and AdminLTE CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/dist/css/bootstrap.min.css'); ?>">
     <link rel="stylesheet" href="<?= base_url('assets/dist/css/adminlte.min.css'); ?>">
-    <!-- Additional CSS -->
-    <link rel="stylesheet" href="<?= base_url('public/assets/dist/css/custom.css'); ?>">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="<?= base_url('assets/images/avi2.png'); ?>" type="image/png">
@@ -86,7 +82,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-<<<<<<< HEAD
                             <a href="<?= base_url('admnscrap/dashboardscrap_fa_price'); ?>" class="nav-link">
                                 <i class="nav-icon fas fa-tv"></i>
                                 <p>
@@ -95,8 +90,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-=======
->>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
                             <a href="<?= base_url('admnscrap/part_number_scrap_bd'); ?>" class="nav-link">
                                 <i class="fas fa-edit nav-icon"></i>
                                 <p>Input Part Scrap</p>
@@ -156,36 +149,6 @@
     <script src="<?= base_url('assets/plugins/jquery/jquery.min.js'); ?>"></script>
     <script src="<?= base_url('assets/plugins/bootstrap/js/bootstrap.bundle.min.js'); ?>"></script>
     <script src="<?= base_url('assets/dist/js/adminlte.min.js'); ?>"></script>
-
-<script>
-    $(document).ready(function() {
-        function fetchNotifications() {
-            $.ajax({
-                url: '<?= site_url('user/getNotificationsProd'); ?>',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if(response.length > 0) {
-                        $('#notification-icon').show();
-                        $('#notification-list').empty();
-                        response.forEach(function(notification) {
-                            $('#notification-list').append(
-                                '<li><a href="processing_form_smt"> Solder Paste Open - ' + notification.lot_number + ' - ' + notification.id + '</a></li>'
-                            );
-                        });
-                    } else {
-                        $('#notification-icon').hide();
-                        $('#notification-list').empty();
-                    }
-                }
-            });
-        }
-
-        fetchNotifications();
-
-        setInterval(fetchNotifications, 30000); 
-    });
-</script>
 
 <script>
     $(document).ready(function() {
