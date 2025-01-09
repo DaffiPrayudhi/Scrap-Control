@@ -436,6 +436,7 @@ class User extends Controller
                 $colors[$model] = 'rgba(' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',0.6)';
             }
         }
+        
 
         $totalHarga = 0;
         foreach ($data['scrap_chart_data'] as $row) {
@@ -446,6 +447,7 @@ class User extends Controller
         foreach ($data['scrap_chart_data'] as $row) {
             $totalQty += $row['qty'];
         }
+     
 
         $data['colors'] = $colors;
         $data['totalHarga'] = $totalHarga;
@@ -493,7 +495,13 @@ class User extends Controller
 
         $data['scrap_control'] = $this->UserModel->findAll();
         $data['scrap_chart_data'] = $this->UserModel->getFilteredScrapDataWithPrice($startDate, $endDate, $model, 
-        $part_number, $mesin, $tipe_ng, $line);
+        $part_number, $mesin, $tipe_ng, $line, $scraptype);
+        $data['scrap_chart_data'] = array_values(array_reduce($data['scrap_chart_data'], function ($carry, $item) {
+            $key = $item['id'];
+            $carry[$key] = $item;
+            return $carry;
+        }, []));        
+        
         $data['pageTitle'] = 'Admin Scrap SMT Dashboard';
         $data['filters'] = [
             'start_date' => $startDate,
@@ -506,12 +514,11 @@ class User extends Controller
             'line' => $line
         ];
 
-        $data['hargaSatuan'] = $hargaSatuan ? $hargaSatuan['harga'] : '';
-
         $data['models'] = $this->UserModel->where('model is not null')->distinct()->findColumn('model');
         $data['mesins'] = $this->UserModel->where('mesin is not null')->distinct()->findColumn('mesin');
         $data['part_numbers'] = $this->UserModel->where('part_number is not null')->distinct()->findColumn('part_number');
         $data['tipe_ngs'] = $this->UserModel->where('tipe_ng is not null')->distinct()->findColumn('tipe_ng');
+        $data['scraptypes'] = $this->PartNumberSMTModel->where('scraptype is not null')->distinct()->findColumn('scraptype');
         $data['lines'] = $this->UserModel->where('line is not null')->distinct()->findColumn('line');
 
         $colors = [
@@ -532,19 +539,22 @@ class User extends Controller
             }
         }
 
-        $totalHarga = 0;
-        foreach ($data['scrap_chart_data'] as $row) {
-            $totalHarga += $row['total_harga'];
-        }
+        // $totalHarga = 0;
+        // foreach ($data['scrap_chart_data'] as $row) {
+        //     $totalHarga += $row['total_harga'];
+        // }x
 
         $totalQty = 0;
         foreach ($data['scrap_chart_data'] as $row) {
             $totalQty += $row['qty'];
         }
 
+        $totalHarga = $totalQty * ($hargaSatuan ? $hargaSatuan['harga'] : 0);  
+
         $data['colors'] = $colors;
         $data['totalHarga'] = $totalHarga;
         $data['totalQty'] = $totalQty;
+        $data['hargaSatuan'] = $hargaSatuan ? $hargaSatuan['harga'] : '';
         $data['currentMonthName'] = $currentMonthName;
         $data['previousMonthName'] = $previousMonthName;
 

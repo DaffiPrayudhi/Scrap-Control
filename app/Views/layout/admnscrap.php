@@ -82,7 +82,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= base_url('admnscrap/dashboardscrap_fa_price'); ?>" class="nav-link">
+                            <a href="<?= base_url('admnscrap/dashboardscrap_smt_price'); ?>" class="nav-link">
                                 <i class="nav-icon fas fa-tv"></i>
                                 <p>
                                     Dashboard Price

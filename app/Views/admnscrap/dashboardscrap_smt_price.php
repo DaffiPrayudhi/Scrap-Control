@@ -91,13 +91,24 @@ Dashboard Scrap Control
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
-                                        <label for="tipe_ng" style="margin-right: 28px">Tipe NG</label>
+                                    <div class="col-md-1">
+                                        <label for="tipe_ng" style="margin-right: 28px">NG  </label>
                                         <select id="tipe_ng" name="tipe_ng" class="form-control" style="margin-right: 28px; font-size: 14px">
                                             <option value="">All Tipe NG</option>
                                             <?php foreach ($tipe_ngs as $tipe_ng): ?>
                                                 <option value="<?= esc($tipe_ng) ?>" <?= ($filters['tipe_ng'] === $tipe_ng) ? 'selected' : '' ?>>
                                                     <?= esc($tipe_ng) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label for="scraptype" style="margin-right: 28px">Scrap</label>
+                                        <select id="scraptype" name="scraptype" class="form-control" style="margin-right: 28px; font-size: 14px">
+                                            <option value="">All Scrap</option>
+                                            <?php foreach ($scraptypes as $scraptype): ?>
+                                                <option value="<?= esc($scraptype) ?>" <?= ($filters['scraptype'] === $scraptype) ? 'selected' : '' ?>>
+                                                    <?= esc($scraptype) ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
@@ -130,6 +141,7 @@ Dashboard Scrap Control
                         <p><strong>Part Number:</strong> <?= esc($filters['part_number']) ?: 'All' ?></p>
                         <p><strong>Harga Unit:</strong> Rp. <?= $hargaSatuan ? number_format($hargaSatuan, 0, ',', '.') : 'All' ?></p>
                         <p><strong>Tipe NG:</strong> <?= esc($filters['tipe_ng']) ?: 'All' ?></p>
+                        <p><strong>Scraptype:</strong> <?= esc($filters['scraptype']) ?: 'All' ?></p>
                         <p><strong>Quantity:</strong> <?= esc($totalQty) ?> pcs</p>
                         <hr>
                         <div class="total-quantity-container">
@@ -161,7 +173,7 @@ Dashboard Scrap Control
 });
 </script>
 
-<script>
+<!-- <script>
     $(document).ready(function() {
         const data = <?= json_encode($scrap_chart_data) ?>;
         const colors = <?= json_encode($colors) ?>;
@@ -227,7 +239,102 @@ Dashboard Scrap Control
                         suggestedMax: suggestedMax,
                         title: {
                             display: true,
-                            text: 'Quantity',
+                            text: 'Harga ( Rp. )',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: !hasFilters, 
+                    }
+                }
+            }
+        });
+
+        $('#downloadChart').click(function() {
+            const link = document.createElement('a');
+            link.href = scrapChart.toBase64Image();
+            link.download = 'scrap_chart.png';
+            link.click();
+        });
+
+        $('#resetFilters').click(function() {
+            window.location.href = '<?= site_url('admnscrap/dashboardscrap_smt_price') ?>';
+        });
+    });
+</script> -->
+
+<script>
+    $(document).ready(function() {
+        const data = <?= json_encode($scrap_chart_data) ?>;
+        const colors = <?= json_encode($colors) ?>;
+
+        const startDate = new Date('<?= esc($filters['start_date']) ?>');
+        const endDate = new Date('<?= esc($filters['end_date']) ?>');
+        
+        const labels = [];
+        let date = new Date(startDate);
+
+        while (date <= endDate) {
+            labels.push(`${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`);
+            date.setDate(date.getDate() + 1);
+        }
+
+        const hasFilters = <?= json_encode(!empty($filters['model']) || !empty($filters['mesin']) || !empty($filters['part_number']) || !empty($filters['tipe_ng'])) ?>;
+        const datasets = {};
+
+        data.forEach(item => {
+            const key = hasFilters ? `${item.model}-${item.mesin}-${item.part_number}-${item.qty}` : item.model;
+
+            if (!datasets[key]) {
+                datasets[key] = {
+                    label: hasFilters ? `${item.model} - ${item.mesin} - ${item.part_number} - ${item.qty}` : item.model,
+                    data: Array(labels.length).fill(0),  
+                    backgroundColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
+                    borderColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 1
+                };
+            }
+
+            const itemDate = new Date(item.tgl_bln_thn);
+            const dateIndex = labels.indexOf(`${String(itemDate.getDate()).padStart(2, '0')}/${String(itemDate.getMonth() + 1).padStart(2, '0')}`);
+            if (dateIndex !== -1) {
+                const dailyPrice = item.qty * <?= json_encode($hargaSatuan) ?>;
+                datasets[key].data[dateIndex] = dailyPrice;
+            }
+        });
+
+        const suggestedMax = hasFilters ? 100 : 2000000;
+
+        const ctx = document.getElementById('scrapChart').getContext('2d');
+        const scrapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: Object.values(datasets)
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tanggal',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: suggestedMax,
+                        title: {
+                            display: true,
+                            text: 'Harga ( Rp. )',
                             font: {
                                 weight: 'bold'
                             }

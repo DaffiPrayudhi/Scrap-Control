@@ -30,7 +30,7 @@ class Database extends Config
         'username'     => 'sa',
         'password'     => 'Visteon123456789',
         'database'     => 'cias',
-        'DBDriver'     => 'sqlserv',
+        'DBDriver'     => 'sqlsrv',
         'DBPrefix'     => '',
         'pConnect'     => false,
         'DBDebug'      => true,

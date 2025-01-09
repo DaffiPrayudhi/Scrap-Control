@@ -225,7 +225,7 @@ Dashboard Scrap Control
                         suggestedMax: suggestedMax,
                         title: {
                             display: true,
-                            text: 'Quantity',
+                            text: 'Harga (Rp.)',
                             font: {
                                 weight: 'bold'
                             }
