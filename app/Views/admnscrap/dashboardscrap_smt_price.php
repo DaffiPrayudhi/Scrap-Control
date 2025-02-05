@@ -271,28 +271,36 @@ Dashboard Scrap Control
     $(document).ready(function() {
         const data = <?= json_encode($scrap_chart_data) ?>;
         const colors = <?= json_encode($colors) ?>;
-
+        const hargaSatuan = <?= json_encode($hargaSatuan) ?>;
+        const hargaSatuanByModel = <?= json_encode($hargaSatuanByModel ?? []) ?>;
+        const isModelFiltered = <?= json_encode($isModelFiltered) ?>;
+        
         const startDate = new Date('<?= esc($filters['start_date']) ?>');
         const endDate = new Date('<?= esc($filters['end_date']) ?>');
         
         const labels = [];
         let date = new Date(startDate);
-
         while (date <= endDate) {
-            labels.push(`${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`);
+            labels.push(
+                `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+            );
             date.setDate(date.getDate() + 1);
         }
 
-        const hasFilters = <?= json_encode(!empty($filters['model']) || !empty($filters['mesin']) || !empty($filters['part_number']) || !empty($filters['tipe_ng'])) ?>;
+        const hasFilters = <?= json_encode(!empty($filters['model']) || !empty($filters['mesin']) || !empty($filters['part_number']) || !empty($filters['tipe_ng']) || !empty($filters['line']) || !empty($filters['scraptype'])) ?>;
         const datasets = {};
 
         data.forEach(item => {
-            const key = hasFilters ? `${item.model}-${item.mesin}-${item.part_number}-${item.qty}` : item.model;
+            const key = isModelFiltered 
+                ? `${item.model}-${item.mesin}-${item.part_number}-${item.tipe_ng}-${item.qty}` 
+                : item.model;
 
             if (!datasets[key]) {
                 datasets[key] = {
-                    label: hasFilters ? `${item.model} - ${item.mesin} - ${item.part_number} - ${item.qty}` : item.model,
-                    data: Array(labels.length).fill(0),  
+                    label: isModelFiltered 
+                        ? `${item.model} - ${item.mesin} - ${item.part_number} - ${item.tipe_ng} - ${item.qty}` 
+                        : item.model,
+                    data: Array(labels.length).fill(0),
                     backgroundColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
                     borderColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
                     borderWidth: 1
@@ -300,14 +308,17 @@ Dashboard Scrap Control
             }
 
             const itemDate = new Date(item.tgl_bln_thn);
-            const dateIndex = labels.indexOf(`${String(itemDate.getDate()).padStart(2, '0')}/${String(itemDate.getMonth() + 1).padStart(2, '0')}`);
+            const dateLabel = `${String(itemDate.getDate()).padStart(2, '0')}/${String(itemDate.getMonth() + 1).padStart(2, '0')}`;
+            const dateIndex = labels.indexOf(dateLabel);
             if (dateIndex !== -1) {
-                const dailyPrice = item.qty * <?= json_encode($hargaSatuan) ?>;
-                datasets[key].data[dateIndex] = dailyPrice;
+                const unitPrice = isModelFiltered 
+                    ? (parseFloat(hargaSatuan) || 0) 
+                    : (hargaSatuanByModel[item.model] ? parseFloat(hargaSatuanByModel[item.model]) : 0);
+                datasets[key].data[dateIndex] += (item.qty * unitPrice);
             }
         });
 
-        const suggestedMax = hasFilters ? 100 : 2000000;
+        const suggestedMax = isModelFiltered ? 100 : 15000000;
 
         const ctx = document.getElementById('scrapChart').getContext('2d');
         const scrapChart = new Chart(ctx, {
@@ -343,7 +354,7 @@ Dashboard Scrap Control
                 },
                 plugins: {
                     legend: {
-                        display: !hasFilters, 
+                        display: !hasFilters,
                     }
                 }
             }
@@ -361,6 +372,7 @@ Dashboard Scrap Control
         });
     });
 </script>
+
 
 <script>
     document.getElementById('line').addEventListener('change', function() {
@@ -383,7 +395,6 @@ Dashboard Scrap Control
                     option.text = model.model;
                     modelSelect.add(option);
                 });
-                // Preselect the model if it was previously selected
                 if ('<?= esc($filters['model']) ?>' !== '') {
                     modelSelect.value = '<?= esc($filters['model']) ?>';
                 }
@@ -432,7 +443,6 @@ document.getElementById('mesin').addEventListener('change', function() {
                     option.text = tipe_ng.tipe_ng;
                     tipeNgSelect.add(option);
                 });
-                // Preselect the tipe_ng if it was previously selected
                 if ('<?= esc($filters['tipe_ng']) ?>' !== '') {
                     tipeNgSelect.value = '<?= esc($filters['tipe_ng']) ?>';
                 }
@@ -441,7 +451,6 @@ document.getElementById('mesin').addEventListener('change', function() {
     }
 });
 
-// Initialize dropdowns on page load
 window.addEventListener('load', function() {
     document.getElementById('line').dispatchEvent(new Event('change'));
     document.getElementById('mesin').dispatchEvent(new Event('change'));

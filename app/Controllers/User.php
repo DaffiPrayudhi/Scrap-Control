@@ -462,65 +462,81 @@ class User extends Controller
     public function admnscrapDashboardSMT_price()
     {
         $session = session();
-
+    
         if (!$session->get('logged_in')) {
             return redirect()->to('/login');
         }
-
-        $startDate = $this->request->getGet('start_date');
-        $endDate = $this->request->getGet('end_date');
-        $model = $this->request->getGet('model');
-        $mesin = $this->request->getGet('mesin');
+    
+        $startDate   = $this->request->getGet('start_date');
+        $endDate     = $this->request->getGet('end_date');
+        $model       = $this->request->getGet('model');
+        $mesin       = $this->request->getGet('mesin');
         $part_number = $this->request->getGet('part_number');
-        $tipe_ng = $this->request->getGet('tipe_ng');
-        $scraptype = $this->request->getGet('scraptype');
-        $line = $this->request->getGet('line');
-        
-
+        $tipe_ng     = $this->request->getGet('tipe_ng');
+        $scraptype   = $this->request->getGet('scraptype');
+        $line        = $this->request->getGet('line');
+    
         if (!$startDate || !$endDate) {
             $startDate = date('Y-m-01'); 
-            $endDate = date('Y-m-t');   
+            $endDate   = date('Y-m-t');   
         }
-
+    
         $currentMonthStart = $startDate;
-        $currentMonthEnd = $endDate;
-
+        $currentMonthEnd   = $endDate;
+    
         $previousMonthStart = date('Y-m-d', strtotime('-1 month', strtotime($startDate)));
-        $previousMonthEnd = date('Y-m-d', strtotime('-1 month', strtotime($endDate)));
-
-        $currentMonthName = date('F', strtotime($currentMonthStart));
-        $previousMonthName = date('F', strtotime($previousMonthStart));
-
-        $hargaSatuan = $this->UserModel->getHargaSatuan($model, $line, $part_number, $scraptype);
-
+        $previousMonthEnd   = date('Y-m-d', strtotime('-1 month', strtotime($endDate)));
+    
+        $currentMonthName   = date('F', strtotime($currentMonthStart));
+        $previousMonthName  = date('F', strtotime($previousMonthStart));
+        
+        $isModelFiltered = !empty($model);
+        $isOtherFilterApplied = !empty($mesin) || !empty($part_number) || !empty($tipe_ng) || !empty($line) || !empty($scraptype);
+        $isFilterApplied = $isModelFiltered || $isOtherFilterApplied;
+    
+        if ($isModelFiltered) {
+            $hargaSatuan = $this->UserModel->getHargaSatuan($model, $line, $part_number, $scraptype);
+        } else {
+            $hargaSatuan = null; 
+        }
+    
         $data['scrap_control'] = $this->UserModel->findAll();
-        $data['scrap_chart_data'] = $this->UserModel->getFilteredScrapDataWithPrice($startDate, $endDate, $model, 
-        $part_number, $mesin, $tipe_ng, $line, $scraptype);
+        $data['scrap_chart_data'] = $this->UserModel->getFilteredScrapDataWithPrice(
+            $startDate,
+            $endDate,
+            $model,
+            $part_number,
+            $mesin,
+            $tipe_ng,
+            $line,
+            $scraptype
+        );
+        
         $data['scrap_chart_data'] = array_values(array_reduce($data['scrap_chart_data'], function ($carry, $item) {
             $key = $item['id'];
             $carry[$key] = $item;
             return $carry;
         }, []));        
-        
+    
         $data['pageTitle'] = 'Admin Scrap SMT Dashboard';
         $data['filters'] = [
             'start_date' => $startDate,
-            'end_date' => $endDate,
-            'model' => $model,
-            'mesin' => $mesin,
-            'scraptype' => $scraptype,
-            'part_number' => $part_number,
-            'tipe_ng' => $tipe_ng,
-            'line' => $line
+            'end_date'   => $endDate,
+            'model'      => $model,
+            'mesin'      => $mesin,
+            'scraptype'  => $scraptype,
+            'part_number'=> $part_number,
+            'tipe_ng'    => $tipe_ng,
+            'line'       => $line
         ];
-
-        $data['models'] = $this->UserModel->where('model is not null')->distinct()->findColumn('model');
-        $data['mesins'] = $this->UserModel->where('mesin is not null')->distinct()->findColumn('mesin');
+    
+        $data['models']       = $this->UserModel->where('model is not null')->distinct()->findColumn('model');
+        $data['mesins']       = $this->UserModel->where('mesin is not null')->distinct()->findColumn('mesin');
         $data['part_numbers'] = $this->UserModel->where('part_number is not null')->distinct()->findColumn('part_number');
-        $data['tipe_ngs'] = $this->UserModel->where('tipe_ng is not null')->distinct()->findColumn('tipe_ng');
-        $data['scraptypes'] = $this->PartNumberSMTModel->where('scraptype is not null')->distinct()->findColumn('scraptype');
-        $data['lines'] = $this->UserModel->where('line is not null')->distinct()->findColumn('line');
-
+        $data['tipe_ngs']     = $this->UserModel->where('tipe_ng is not null')->distinct()->findColumn('tipe_ng');
+        $data['scraptypes']   = $this->PartNumberSMTModel->where('scraptype is not null')->distinct()->findColumn('scraptype');
+        $data['lines']        = $this->UserModel->where('line is not null')->distinct()->findColumn('line');
+    
         $colors = [
             'K0JG' => 'rgba(75, 192, 192, 1)',
             'K1ZA' => 'rgba(255, 99, 132, 1)',
@@ -531,35 +547,50 @@ class User extends Controller
             'SIIX' => 'rgba(255, 99, 71, 1)',
             'K1AL' => 'rgba(50, 205, 50, 1)' 	
         ];
-
-        foreach ($data['models'] as $model) {
-            if (!isset($colors[$model])) {
-                $colors[$model] = 'rgba(' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',0.6)';
-                
+    
+        foreach ($data['models'] as $m) {
+            if (!isset($colors[$m])) {
+                $colors[$m] = 'rgba(' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',0.6)';
             }
         }
-
-        // $totalHarga = 0;
-        // foreach ($data['scrap_chart_data'] as $row) {
-        //     $totalHarga += $row['total_harga'];
-        // }x
-
+    
+        $hargaSatuanByModel = [];
+        if (!$isModelFiltered) {  
+            foreach ($data['models'] as $m) {
+                $hargaData = $this->UserModel->getHargaSatuan($m);
+                $hargaSatuanByModel[$m] = $hargaData ? $hargaData['harga'] : 0;
+            }
+        }
+    
         $totalQty = 0;
         foreach ($data['scrap_chart_data'] as $row) {
             $totalQty += $row['qty'];
         }
-
-        $totalHarga = $totalQty * ($hargaSatuan ? $hargaSatuan['harga'] : 0);  
-
+    
+        if ($isModelFiltered) {
+            $unitPrice = $hargaSatuan ? $hargaSatuan['harga'] : 0;
+            $totalHarga = $totalQty * $unitPrice;  
+        } else {
+            $totalHarga = 0;
+            foreach ($data['scrap_chart_data'] as $row) {   
+                $modelName = $row['model'];
+                $unitPrice = isset($hargaSatuanByModel[$modelName]) ? $hargaSatuanByModel[$modelName] : 0;
+                $totalHarga += $row['qty'] * $unitPrice;
+            }
+        }
+    
         $data['colors'] = $colors;
         $data['totalHarga'] = $totalHarga;
-        $data['totalQty'] = $totalQty;
-        $data['hargaSatuan'] = $hargaSatuan ? $hargaSatuan['harga'] : '';
+        $data['totalQty']   = $totalQty;
+        $data['hargaSatuan'] = $isModelFiltered ? ($hargaSatuan ? $hargaSatuan['harga'] : '') : null;
+        $data['hargaSatuanByModel'] = !$isModelFiltered ? $hargaSatuanByModel : null;
         $data['currentMonthName'] = $currentMonthName;
         $data['previousMonthName'] = $previousMonthName;
-
+        $data['isModelFiltered'] = $isModelFiltered;
+    
         return view('admnscrap/dashboardscrap_smt_price', $data);
     }
+    
 
     public function part_number_scrap()
     {

@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../project-root"
+		},
+		{
+			"path": "../../../../../project-root-mysql"
+		},
+		{
+			"path": "../../../../../report-produksi"
+		},
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../agv_dashboard"
+		},
+		{
+			"path": "../../../../../inventori-asset"
+		},
+		{
+			"path": "../../../../../sparepart-2"
+		}
+	],
+	"settings": {}
+}

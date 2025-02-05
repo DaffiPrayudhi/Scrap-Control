@@ -823,22 +823,10 @@ class UserModel extends Model
         return $this->where('id', $id)->delete();
     }
 
-    public function getHargaSatuan($model, $line, $part_number, $scraptype)
-    {
-        return $this->db->table('part_number_smt_update')
-                        ->select('harga')
-                        ->where('model', $model)
-                        ->where('line', $line)
-                        ->where('scraptype', $scraptype)
-                        ->where('part_number', $part_number)
-                        ->get()
-                        ->getRowArray();       
-    }
-
     public function getFilteredScrapDataWithPrice($startDate, $endDate, $model, $part_number, $mesin, $tipe_ng, $line, $scraptype)
     {
         $builder = $this->db->table('scrap_control_smt_update')
-            ->select('id, tgl_bln_thn, qty, model, mesin, scraptype, part_number')
+            ->select('id, tgl_bln_thn, qty, model, mesin, scraptype, tipe_ng, part_number')
             ->where('tgl_bln_thn >=', $startDate)
             ->where('tgl_bln_thn <=', $endDate);
 
@@ -872,11 +860,31 @@ class UserModel extends Model
             'qty',
             'model',
             'mesin',
+            'tipe_ng',
             'scraptype',
             'part_number',
         ]);
 
         return $builder->get()->getResultArray();
+    }
+
+    public function getHargaSatuan($model, $line = null, $part_number = null, $scraptype = null)
+    {
+        $builder = $this->db->table('part_number_smt')
+                            ->select('SUM(harga) as harga')
+                            ->where('model', $model);
+                            
+        if (!empty($line)) {
+            $builder->where('line', $line);
+        }
+        if (!empty($scraptype)) {
+            $builder->where('scraptype', $scraptype);
+        }
+        if (!empty($part_number)) {
+            $builder->where('part_number', $part_number);
+        }
+        
+        return $builder->get()->getRowArray();
     }
 
     // public function getFilteredScrapDataWithPrice($startDate, $endDate, $model, $part_number, $mesin, $tipe_ng, $line, $scraptype)
@@ -927,7 +935,7 @@ class UserModel extends Model
 
     public function getPartNumbersByModel($model, $line)
     {
-        return $this->db->table('part_number_smt_update')     
+        return $this->db->table('part_number_smt')     
             ->select('part_number')
             ->where('model', $model)
             ->where('line', $line)
@@ -935,6 +943,10 @@ class UserModel extends Model
             ->get()
             ->getResultArray();
     }
+    
+    
+    
+    
 
 
 

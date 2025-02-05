@@ -11,11 +11,7 @@ $errorId = uniqid('error', true);
     <meta charset="UTF-8">
     <meta name="robots" content="noindex">
 
-<<<<<<< HEAD
     <title><?= esc(data: $title) ?></title>
-=======
-    <title><?= esc($title) ?></title>
->>>>>>> 57108658b88ac388fc4c178f184b68a3229c097e
     <style>
         <?= preg_replace('#[\r\n\t ]+#', ' ', file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'debug.css')) ?>
     </style>

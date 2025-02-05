@@ -198,7 +198,7 @@ Dashboard Scrap Control
         });
 
 
-        const suggestedMax = hasFilters ? 10 : 1000;
+        const suggestedMax = hasFilters ? 10 : 300000;
 
         const ctx = document.getElementById('scrapChart').getContext('2d');
         const scrapChart = new Chart(ctx, {

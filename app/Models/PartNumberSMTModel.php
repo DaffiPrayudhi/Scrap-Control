@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class PartNumberSMTModel extends Model
 {
-    protected $table = 'part_number_smt_update';
+    protected $table = 'part_number_smt';
     protected $primaryKey = 'id_part';
 
     protected $returnType = 'array';
