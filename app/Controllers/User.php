@@ -436,7 +436,6 @@ class User extends Controller
                 $colors[$model] = 'rgba(' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',0.6)';
             }
         }
-        
 
         $totalHarga = 0;
         foreach ($data['scrap_chart_data'] as $row) {
@@ -1789,48 +1788,56 @@ class User extends Controller
     public function exportExcelFAPrice()
     {
         $startDate = $this->request->getGet('start_date');
-    $endDate = $this->request->getGet('end_date');
-    $model = $this->request->getGet('model');
-    $komponen = $this->request->getGet('komponen');
-    $tipe_ng = $this->request->getGet('tipe_ng');
-    $line = $this->request->getGet('line');
+        $endDate   = $this->request->getGet('end_date');
+        $model     = $this->request->getGet('model');
+        $komponen  = $this->request->getGet('komponen');
+        $tipe_ng   = $this->request->getGet('tipe_ng');
+        $line      = $this->request->getGet('line');
 
-    $data = $this->UserModelFA->getFilteredScrapDataExcel($startDate, $endDate, $model, $komponen, $tipe_ng, $line);
+        $data = $this->UserModelFA->getFilteredScrapDataWithPrice($startDate, $endDate, $model, $komponen, null, $tipe_ng, $line);
 
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-    
-    $sheet->setCellValue('A1', 'Model');
-    $sheet->setCellValue('B1', 'Line');
-    $sheet->setCellValue('C1', 'Date');
-    $sheet->setCellValue('D1', 'Shift');
-    $sheet->setCellValue('E1', 'Komponen');
-    $sheet->setCellValue('F1', 'Tipe NG');
-    $sheet->setCellValue('G1', 'Remarks');
-    $sheet->setCellValue('H1', 'Qty NG');
-    
-    $rowNum = 2;
-    foreach ($data as $row) {
-        $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
-        $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
-        $sheet->setCellValue('C' . $rowNum, $row['date'] ?? '');
-        $sheet->setCellValue('D' . $rowNum, $row['shift'] ?? '');
-        $sheet->setCellValue('E' . $rowNum, $row['komponen'] ?? '');
-        $sheet->setCellValue('F' . $rowNum, $row['tipe_ng'] ?? ''); 
-        $sheet->setCellValue('G' . $rowNum, $row['remarks'] ?? '');
-        $sheet->setCellValue('H' . $rowNum, $row['qty'] ?? '');
-        $rowNum++;
-    }    
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
 
-    $writer = new Xlsx($spreadsheet);
-    $filename = 'rekap_data_scrap_fa.xlsx';
-    
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="' . $filename . '"');
-    header('Cache-Control: max-age=0');
-    $writer->save('php://output');
+        $headers = [
+            'Model',
+            'Komponen',
+            'Part Number',
+            'Line',
+            'Tanggal',
+            'Qty',
+            'Harga Unit',
+            'Total Harga'
+        ];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $rowNum = 2;
+        foreach ($data as $row) {
+            $hargaUnit  = isset($row['harga']) ? floatval($row['harga']) : 0;
+            $qty        = isset($row['qty']) ? floatval($row['qty']) : 0;
+            $totalHarga = isset($row['total_harga']) ? floatval($row['total_harga']) : ($qty * $hargaUnit);
+
+            $sheet->setCellValue("A{$rowNum}", $row['model'] ?? '');
+            $sheet->setCellValue("B{$rowNum}", $row['komponen'] ?? '');
+            $sheet->setCellValue("C{$rowNum}", $row['part_number'] ?? '');
+            $sheet->setCellValue("D{$rowNum}", $row['line'] ?? '');
+            $sheet->setCellValue("E{$rowNum}", $row['tgl_bln_thn'] ?? '');
+            $sheet->setCellValue("F{$rowNum}", $qty);
+            $sheet->setCellValue("G{$rowNum}", $hargaUnit);
+            $sheet->setCellValue("H{$rowNum}", $totalHarga);
+
+            $rowNum++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'rekap_data_scrap_fa.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment; filename=\"{$filename}\"");
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
     }
-
+    
     public function getPartNumbersByKomponenFA($model, $komponen)
     {
         $partNumbers = $this->PartNumberKompModel->getPartNumbersByKomponen($model, $komponen);

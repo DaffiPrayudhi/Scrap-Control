@@ -147,7 +147,7 @@ Dashboard Scrap Control
 
 <script>
     $('#downloadExcel').click(function() {
-    window.location.href = '<?= site_url('admnscrap/exportExcelFA') ?>?' + $.param({
+    window.location.href = '<?= site_url('admnscrap/exportExcelFAPrice') ?>?' + $.param({
         start_date: '<?= esc($filters['start_date']) ?>',
         end_date: '<?= esc($filters['end_date']) ?>',
         model: '<?= esc($filters['model']) ?>',

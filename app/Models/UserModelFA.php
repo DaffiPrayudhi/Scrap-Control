@@ -867,8 +867,6 @@ class UserModelFA extends Model
     
         return $builder->get()->getResultArray();
     }
-    
-
 
     public function getHargaSatuan($model, $komponen, $part_number)
     {
