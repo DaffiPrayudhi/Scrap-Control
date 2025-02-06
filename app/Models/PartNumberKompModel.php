@@ -11,7 +11,7 @@ class PartNumberKompModel extends Model
 
     protected $returnType = 'array';
 
-    protected $allowedFields = ['id_part_komponen','model','komponen', 'part_number'];
+    protected $allowedFields = ['id_part_komponen','model','komponen', 'part_number','harga'];
     protected $useAutoIncrement = true;
 
     public function getPartNumbersByKomponen($model, $komponen)

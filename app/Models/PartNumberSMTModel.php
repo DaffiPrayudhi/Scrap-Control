@@ -6,12 +6,12 @@ use CodeIgniter\Model;
 
 class PartNumberSMTModel extends Model
 {
-    protected $table = 'part_number_smt_update';
+    protected $table = 'part_number_smt';
     protected $primaryKey = 'id_part';
 
     protected $returnType = 'array';
 
-    protected $allowedFields = ['id_part','model', 'part_number','line'];
+    protected $allowedFields = ['model', 'part_number','line','harga','scraptype'];
     protected $useAutoIncrement = true;
 
     public function getUniqueModels()
@@ -62,6 +62,7 @@ class PartNumberSMTModel extends Model
     public function getPartNumbersByModelAndLine($model, $line)
     {
         return $this->select('part_number')
+                    ->distinct()
                     ->where('model', $model)
                     ->where('line', $line)
                     ->where('part_number IS NOT NULL')
@@ -76,5 +77,12 @@ class PartNumberSMTModel extends Model
                     ->findAll();
     }
 
+    public function getScrapType()
+    {
+        return $this->select('scraptype')
+                    ->where('scraptype IS NOT NULL')
+                    ->distinct()
+                    ->findAll();
+    }
 
 }

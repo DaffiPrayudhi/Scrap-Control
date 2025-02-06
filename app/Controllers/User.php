@@ -365,6 +365,231 @@ class User extends Controller
         return view('admnscrap/dashboardscrap_fa', $data);
     }
 
+    public function admnscrapDashboardFA_price()
+    {
+        
+        $session = session();
+
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $startDate = $this->request->getGet('start_date');
+        $endDate = $this->request->getGet('end_date');
+        $model = $this->request->getGet('model');
+        $komponen = $this->request->getGet('komponen');
+        $part_number = $this->request->getGet('part_number');
+        $tipe_ng = $this->request->getGet('tipe_ng');
+        $line = $this->request->getGet('line');
+
+        if (!$startDate || !$endDate) {
+            $startDate = date('Y-m-01'); 
+            $endDate = date('Y-m-t');   
+        }
+
+        $currentMonthStart = $startDate;
+        $currentMonthEnd = $endDate;
+
+        $previousMonthStart = date('Y-m-d', strtotime('-1 month', strtotime($startDate)));
+        $previousMonthEnd = date('Y-m-d', strtotime('-1 month', strtotime($endDate)));
+
+        $currentMonthName = date('F', strtotime($currentMonthStart));
+        $previousMonthName = date('F', strtotime($previousMonthStart));
+
+        $hargaSatuan = $this->UserModelFA->getHargaSatuan($model, $komponen, $part_number);
+
+        $data['scrap_control'] = $this->UserModelFA->findAll();
+        $data['scrap_chart_data'] = $this->UserModelFA->getFilteredScrapDataWithPrice($startDate, $endDate, $model, $komponen, $part_number, $tipe_ng, $line);
+        $data['pageTitle'] = 'Admin Scrap FA Dashboard';
+        $data['filters'] = [
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'model' => $model,
+            'komponen' => $komponen,
+            'part_number' => $part_number,
+            'tipe_ng' => $tipe_ng,
+            'line' => $line
+        ];
+
+        $data['hargaSatuan'] = $hargaSatuan ? $hargaSatuan['harga'] : '';
+
+        $data['models'] = $this->UserModelFA->where('model is not null')->distinct()->findColumn('model');
+        $data['komponens'] = $this->UserModelFA->where('komponen is not null')->distinct()->findColumn('komponen');
+        $data['part_numbers'] = $this->UserModelFA->where('part_number is not null')->distinct()->findColumn('part_number');
+        $data['tipe_ngs'] = $this->UserModelFA->where('tipe_ng is not null')->distinct()->findColumn('tipe_ng');
+        $data['lines'] = $this->UserModelFA->where('line is not null')->distinct()->findColumn('line');
+
+        $colors = [
+            'K0J' => 'rgba(75, 192, 192, 1)',
+            'K1ZA' => 'rgba(255, 99, 132, 1)',
+            'K2PG'  => 'rgba(54, 162, 235, 1)',
+            'K2SA' => 'rgba(255, 206, 86, 1)',
+            'K3VA' => 'rgba(153, 102, 255, 1)',
+            'K60_K2VG' => 'rgba(255, 159, 64, 1)',
+            'K45R' => 'rgba(255, 99, 71, 1)',
+            'K1AL' => 'rgba(50, 205, 50, 1)',    
+            'K15P' => 'rgba(160, 82, 82, 1)' 
+        ];
+
+        foreach ($data['models'] as $model) {
+            if (!isset($colors[$model])) {
+                $colors[$model] = 'rgba(' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',0.6)';
+            }
+        }
+
+        $totalHarga = 0;
+        foreach ($data['scrap_chart_data'] as $row) {
+            $totalHarga += $row['total_harga'];
+        }
+
+        $totalQty = 0;
+        foreach ($data['scrap_chart_data'] as $row) {
+            $totalQty += $row['qty'];
+        }
+     
+
+        $data['colors'] = $colors;
+        $data['totalHarga'] = $totalHarga;
+        $data['totalQty'] = $totalQty;
+        $data['currentMonthName'] = $currentMonthName;
+        $data['previousMonthName'] = $previousMonthName;
+        
+
+        return view('admnscrap/dashboardscrap_fa_price', $data);
+    }
+
+    public function admnscrapDashboardSMT_price()
+    {
+        $session = session();
+    
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+    
+        $startDate   = $this->request->getGet('start_date');
+        $endDate     = $this->request->getGet('end_date');
+        $model       = $this->request->getGet('model');
+        $mesin       = $this->request->getGet('mesin');
+        $part_number = $this->request->getGet('part_number');
+        $tipe_ng     = $this->request->getGet('tipe_ng');
+        $scraptype   = $this->request->getGet('scraptype');
+        $line        = $this->request->getGet('line');
+    
+        if (!$startDate || !$endDate) {
+            $startDate = date('Y-m-01'); 
+            $endDate   = date('Y-m-t');   
+        }
+    
+        $currentMonthStart = $startDate;
+        $currentMonthEnd   = $endDate;
+    
+        $previousMonthStart = date('Y-m-d', strtotime('-1 month', strtotime($startDate)));
+        $previousMonthEnd   = date('Y-m-d', strtotime('-1 month', strtotime($endDate)));
+    
+        $currentMonthName   = date('F', strtotime($currentMonthStart));
+        $previousMonthName  = date('F', strtotime($previousMonthStart));
+        
+        $isModelFiltered = !empty($model);
+        $isOtherFilterApplied = !empty($mesin) || !empty($part_number) || !empty($tipe_ng) || !empty($line) || !empty($scraptype);
+        $isFilterApplied = $isModelFiltered || $isOtherFilterApplied;
+    
+        if ($isModelFiltered) {
+            $hargaSatuan = $this->UserModel->getHargaSatuan($model, $line, $part_number, $scraptype);
+        } else {
+            $hargaSatuan = null; 
+        }
+    
+        $data['scrap_control'] = $this->UserModel->findAll();
+        $data['scrap_chart_data'] = $this->UserModel->getFilteredScrapDataWithPrice(
+            $startDate,
+            $endDate,
+            $model,
+            $part_number,
+            $mesin,
+            $tipe_ng,
+            $line,
+            $scraptype
+        );
+        
+        $data['scrap_chart_data'] = array_values(array_reduce($data['scrap_chart_data'], function ($carry, $item) {
+            $key = $item['id'];
+            $carry[$key] = $item;
+            return $carry;
+        }, []));        
+    
+        $data['pageTitle'] = 'Admin Scrap SMT Dashboard';
+        $data['filters'] = [
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+            'model'      => $model,
+            'mesin'      => $mesin,
+            'scraptype'  => $scraptype,
+            'part_number'=> $part_number,
+            'tipe_ng'    => $tipe_ng,
+            'line'       => $line
+        ];
+    
+        $data['models']       = $this->UserModel->where('model is not null')->distinct()->findColumn('model');
+        $data['mesins']       = $this->UserModel->where('mesin is not null')->distinct()->findColumn('mesin');
+        $data['part_numbers'] = $this->UserModel->where('part_number is not null')->distinct()->findColumn('part_number');
+        $data['tipe_ngs']     = $this->UserModel->where('tipe_ng is not null')->distinct()->findColumn('tipe_ng');
+        $data['scraptypes']   = $this->PartNumberSMTModel->where('scraptype is not null')->distinct()->findColumn('scraptype');
+        $data['lines']        = $this->UserModel->where('line is not null')->distinct()->findColumn('line');
+    
+        $colors = [
+            'K0JG' => 'rgba(75, 192, 192, 1)',
+            'K1ZA' => 'rgba(255, 99, 132, 1)',
+            'K2P'  => 'rgba(54, 162, 235, 1)',
+            'K2SA' => 'rgba(255, 206, 86, 1)',
+            'K3VA' => 'rgba(153, 102, 255, 1)',
+            'K59_K60' => 'rgba(255, 159, 64, 1)',
+            'SIIX' => 'rgba(255, 99, 71, 1)',
+            'K1AL' => 'rgba(50, 205, 50, 1)' 	
+        ];
+    
+        foreach ($data['models'] as $m) {
+            if (!isset($colors[$m])) {
+                $colors[$m] = 'rgba(' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',' . mt_rand(0, 255) . ',0.6)';
+            }
+        }
+    
+        $hargaSatuanByModel = [];
+        if (!$isModelFiltered) {  
+            foreach ($data['models'] as $m) {
+                $hargaData = $this->UserModel->getHargaSatuan($m);
+                $hargaSatuanByModel[$m] = $hargaData ? $hargaData['harga'] : 0;
+            }
+        }
+    
+        $totalQty = 0;
+        foreach ($data['scrap_chart_data'] as $row) {
+            $totalQty += $row['qty'];
+        }
+    
+        if ($isModelFiltered) {
+            $unitPrice = $hargaSatuan ? $hargaSatuan['harga'] : 0;
+            $totalHarga = $totalQty * $unitPrice;  
+        } else {
+            $totalHarga = 0;
+            foreach ($data['scrap_chart_data'] as $row) {   
+                $modelName = $row['model'];
+                $unitPrice = isset($hargaSatuanByModel[$modelName]) ? $hargaSatuanByModel[$modelName] : 0;
+                $totalHarga += $row['qty'] * $unitPrice;
+            }
+        }
+    
+        $data['colors'] = $colors;
+        $data['totalHarga'] = $totalHarga;
+        $data['totalQty']   = $totalQty;
+        $data['hargaSatuan'] = $isModelFiltered ? ($hargaSatuan ? $hargaSatuan['harga'] : '') : null;
+        $data['hargaSatuanByModel'] = !$isModelFiltered ? $hargaSatuanByModel : null;
+        $data['currentMonthName'] = $currentMonthName;
+        $data['previousMonthName'] = $previousMonthName;
+        $data['isModelFiltered'] = $isModelFiltered;
+    
+        return view('admnscrap/dashboardscrap_smt_price', $data);
+    }
+
     public function part_number_scrap()
     {
         $userModel = new UserModel();
@@ -476,7 +701,7 @@ class User extends Controller
         
         $today_entries_wrhs = $userModel->get_today_solder_paste();
         $models = $partModel->getUniqueModels(); 
-        $scraptypes = $ScrapTypeSMTModel->getScrapType(); 
+        $scraptypes = $partModel->getScrapType(); 
         $lines = $partModel->getUniqueLines(); 
         $kategoris1 = $MesinSMTModel->getKategori(); 
         $kategoris2 = $MesinFAModel->getKategori(); 
@@ -713,6 +938,11 @@ class User extends Controller
         return $this->response->setJSON(['part_numbers' => $partNumbers]);
     }
     
+    public function getPartNumbersByModel($model, $line)
+    {
+        $partNumbers = $this->UserModel->getPartNumbersByModel($model, $line);
+        return $this->response->setJSON(['part_numbers' => $partNumbers]);
+    }
 
     public function getKomponenByModelFA($model)
     {
@@ -1027,13 +1257,30 @@ class User extends Controller
             'qty' => $this->request->getPost('qty'),
         ];  
 
-        if ($this->UserModel->insert($data)) {
-            session()->set('form_data', $data);
+        $partNumberSMTModel = new PartNumberSMTModel();
+            $hargaData = $partNumberSMTModel->where([
+                'model' => $data['model'],
+                'line' => $data['line'],
+                'part_number' => $data['part_number'],
+                'scraptype' => $data['scraptype']
+            ])->first();
 
-            session()->setFlashdata('success', 'Data Berhasil Disimpan.');
-            return redirect()->to('admnscrap/part_number_scrap_bd');
+        if ($hargaData) {
+            $total_harga = $hargaData['harga'] * $data['qty'];
+    
+            $data['total_harga'] = $total_harga;
+    
+            $userModel = new UserModel();
+            if ($userModel->insert($data)) {
+                session()->set('form_data', $data);
+                session()->setFlashdata('success', 'Data Berhasil Disimpan.');
+                return redirect()->to('admnscrap/part_number_scrap_bd');
+            } else {
+                session()->setFlashdata('error', 'Data Gagal Untuk Disimpan.');
+                return redirect()->back()->withInput();
+            }
         } else {
-            session()->setFlashdata('error', 'Data Gagal Untuk Disimpan.');
+            session()->setFlashdata('error', 'Harga untuk Part Number tidak ditemukan.');
             return redirect()->back()->withInput();
         }
     }
@@ -1069,13 +1316,29 @@ class User extends Controller
             'qty' => $this->request->getPost('qty'),
         ];
 
-        if ($this->UserModelFA->insert($data)) {
-            session()->set('form_data', $data);
+        $partNumberKompModel = new PartNumberKompModel();
+            $hargaData = $partNumberKompModel->where([
+                'model' => $data['model'],
+                'komponen' => $data['komponen'],
+                'part_number' => $data['part_number']
+            ])->first();
 
-            session()->setFlashdata('success', 'Data Berhasil Disimpan.');
-            return redirect()->to('admnscrap/part_number_scrap_db');
+        if ($hargaData) {
+            $total_harga = $hargaData['harga'] * $data['qty'];
+    
+            $data['total_harga'] = $total_harga;
+    
+            $userModelFA = new UserModelFA();
+            if ($userModelFA->insert($data)) {
+                session()->set('form_data', $data);
+                session()->setFlashdata('success', 'Data Berhasil Disimpan.');
+                return redirect()->to('admnscrap/part_number_scrap_db');
+            } else {
+                session()->setFlashdata('error', 'Data Gagal Untuk Disimpan.');
+                return redirect()->back()->withInput();
+            }
         } else {
-            session()->setFlashdata('error', 'Data Gagal Untuk Disimpan.');
+            session()->setFlashdata('error', 'Harga untuk part_number tidak ditemukan.');
             return redirect()->back()->withInput();
         }
     }
@@ -1347,50 +1610,134 @@ class User extends Controller
     public function exportExcelSMT()
     {
         $startDate = $this->request->getGet('start_date');
-    $endDate = $this->request->getGet('end_date');
-    $model = $this->request->getGet('model');
-    $mesin = $this->request->getGet('mesin');
-    $tipe_ng = $this->request->getGet('tipe_ng');
-    $line = $this->request->getGet('line');
+        $endDate = $this->request->getGet('end_date');
+        $model = $this->request->getGet('model');
+        $mesin = $this->request->getGet('mesin');
+        $part_number = $this->request->getGet('part_number');
+        $scraptype = $this->request->getGet('scraptype');
+        $tipe_ng = $this->request->getGet('tipe_ng');
+        $line = $this->request->getGet('line');
 
-    $data = $this->UserModel->getFilteredScrapDataExcel($startDate, $endDate, $model, $mesin, $tipe_ng, $line);
+        $data = $this->UserModel->getFilteredScrapDataExcel($startDate, $endDate, $model, $mesin, $tipe_ng, $line, $scraptype, $part_number);
 
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-    
-    $sheet->setCellValue('A1', 'Model');
-    $sheet->setCellValue('B1', 'Line');
-    $sheet->setCellValue('C1', 'Part Number');
-    $sheet->setCellValue('D1', 'Date');
-    $sheet->setCellValue('E1', 'Shift');
-    $sheet->setCellValue('F1', 'Scrap Type');
-    $sheet->setCellValue('G1', 'Mesin');
-    $sheet->setCellValue('H1', 'Tipe NG');
-    $sheet->setCellValue('I1', 'Remarks');
-    $sheet->setCellValue('J1', 'Qty NG');
-    
-    $rowNum = 2;
-    foreach ($data as $row) {
-        $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
-        $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
-        $sheet->setCellValue('C' . $rowNum, $row['part_number'] ?? '');
-        $sheet->setCellValue('D' . $rowNum, $row['date'] ?? '');
-        $sheet->setCellValue('E' . $rowNum, $row['shift'] ?? '');
-        $sheet->setCellValue('F' . $rowNum, $row['scraptype'] ?? '');
-        $sheet->setCellValue('G' . $rowNum, $row['mesin'] ?? '');
-        $sheet->setCellValue('H' . $rowNum, $row['tipe_ng'] ?? ''); 
-        $sheet->setCellValue('I' . $rowNum, $row['remarks'] ?? '');
-        $sheet->setCellValue('J' . $rowNum, $row['qty'] ?? '');
-        $rowNum++;
-    }    
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->setCellValue('A1', 'Model');
+        $sheet->setCellValue('B1', 'Line');
+        $sheet->setCellValue('C1', 'Part Number');
+        $sheet->setCellValue('D1', 'Date');
+        $sheet->setCellValue('E1', 'Shift');
+        $sheet->setCellValue('F1', 'Scrap Type');
+        $sheet->setCellValue('G1', 'Mesin');
+        $sheet->setCellValue('H1', 'Tipe NG');
+        $sheet->setCellValue('I1', 'Remarks');
+        $sheet->setCellValue('J1', 'Qty NG');
+        
+        $rowNum = 2;
+        foreach ($data as $row) {
+            $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
+            $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
+            $sheet->setCellValue('C' . $rowNum, $row['part_number'] ?? '');
+            $sheet->setCellValue('D' . $rowNum, $row['date'] ?? '');
+            $sheet->setCellValue('E' . $rowNum, $row['shift'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $row['scraptype'] ?? '');
+            $sheet->setCellValue('G' . $rowNum, $row['mesin'] ?? '');
+            $sheet->setCellValue('H' . $rowNum, $row['tipe_ng'] ?? ''); 
+            $sheet->setCellValue('I' . $rowNum, $row['remarks'] ?? '');
+            $sheet->setCellValue('J' . $rowNum, $row['qty'] ?? '');
+            $rowNum++;
+        }    
 
-    $writer = new Xlsx($spreadsheet);
-    $filename = 'rekap_data_scrap_smt.xlsx';
-    
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="' . $filename . '"');
-    header('Cache-Control: max-age=0');
-    $writer->save('php://output');
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'rekap_data_scrap_smt.xlsx';
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+    }
+
+    public function exportExcelSMTPrice()
+    {
+        $startDate   = $this->request->getGet('start_date');
+        $endDate     = $this->request->getGet('end_date');
+        $model       = $this->request->getGet('model');
+        $mesin       = $this->request->getGet('mesin');
+        $part_number = $this->request->getGet('part_number');
+        $scraptype   = $this->request->getGet('scraptype');
+        $tipe_ng     = $this->request->getGet('tipe_ng');
+        $line        = $this->request->getGet('line');
+
+        $data = $this->UserModel->getFilteredScrapDataExcel($startDate, $endDate, $model, $mesin, $tipe_ng, $line, $scraptype, $part_number);
+
+        $isModelFiltered = !empty($model);
+
+        if ($isModelFiltered) {
+            $hargaData = $this->UserModel->getHargaSatuan($model, $line, $part_number, $scraptype);
+            $unitPrice = $hargaData ? $hargaData['harga'] : 0;
+        } else {
+            $uniqueModels = [];
+            foreach ($data as $row) {
+                if (!in_array($row['model'], $uniqueModels)) {
+                    $uniqueModels[] = $row['model'];
+                }
+            }
+            $hargaSatuanByModel = [];
+            foreach ($uniqueModels as $m) {
+                $hargaData = $this->UserModel->getHargaSatuan($m);
+                $hargaSatuanByModel[$m] = $hargaData ? $hargaData['harga'] : 0;
+            }
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'Model');
+        $sheet->setCellValue('B1', 'Line');
+        $sheet->setCellValue('C1', 'Part Number');
+        $sheet->setCellValue('D1', 'Date');
+        $sheet->setCellValue('E1', 'Shift');
+        $sheet->setCellValue('F1', 'Scrap Type');
+        $sheet->setCellValue('G1', 'Mesin');
+        $sheet->setCellValue('H1', 'Tipe NG');
+        $sheet->setCellValue('I1', 'Remarks');
+        $sheet->setCellValue('J1', 'Qty NG');
+        $sheet->setCellValue('K1', 'Harga Unit');
+        $sheet->setCellValue('L1', 'Total Harga');
+
+        $rowNum = 2;
+        foreach ($data as $row) {
+            if ($isModelFiltered) {
+                $hargaUnit = $unitPrice;
+            } else {
+                $modelName = $row['model'];
+                $hargaUnit = isset($hargaSatuanByModel[$modelName]) ? $hargaSatuanByModel[$modelName] : 0;
+            }
+            $totalHarga = $row['qty'] * $hargaUnit;
+
+            $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
+            $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
+            $sheet->setCellValue('C' . $rowNum, $row['part_number'] ?? '');
+            $sheet->setCellValue('D' . $rowNum, $row['date'] ?? '');
+            $sheet->setCellValue('E' . $rowNum, $row['shift'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $row['scraptype'] ?? '');
+            $sheet->setCellValue('G' . $rowNum, $row['mesin'] ?? '');
+            $sheet->setCellValue('H' . $rowNum, $row['tipe_ng'] ?? '');
+            $sheet->setCellValue('I' . $rowNum, $row['remarks'] ?? '');
+            $sheet->setCellValue('J' . $rowNum, $row['qty'] ?? '');
+            $sheet->setCellValue('K' . $rowNum, $hargaUnit);
+            $sheet->setCellValue('L' . $rowNum, $totalHarga);
+            $rowNum++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'rekap_data_scrap_smt.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
     }
 
     public function exportExcelFA()
@@ -1438,11 +1785,70 @@ class User extends Controller
     $writer->save('php://output');
     }
 
+    public function exportExcelFAPrice()
+    {
+        $startDate = $this->request->getGet('start_date');
+        $endDate   = $this->request->getGet('end_date');
+        $model     = $this->request->getGet('model');
+        $komponen  = $this->request->getGet('komponen');
+        $tipe_ng   = $this->request->getGet('tipe_ng');
+        $line      = $this->request->getGet('line');
+
+        $data = $this->UserModelFA->getFilteredScrapDataWithPrice($startDate, $endDate, $model, $komponen, null, $tipe_ng, $line);
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'Model',
+            'Komponen',
+            'Part Number',
+            'Line',
+            'Tanggal',
+            'Qty',
+            'Harga Unit',
+            'Total Harga'
+        ];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $rowNum = 2;
+        foreach ($data as $row) {
+            $hargaUnit  = isset($row['harga']) ? floatval($row['harga']) : 0;
+            $qty        = isset($row['qty']) ? floatval($row['qty']) : 0;
+            $totalHarga = isset($row['total_harga']) ? floatval($row['total_harga']) : ($qty * $hargaUnit);
+
+            $sheet->setCellValue("A{$rowNum}", $row['model'] ?? '');
+            $sheet->setCellValue("B{$rowNum}", $row['komponen'] ?? '');
+            $sheet->setCellValue("C{$rowNum}", $row['part_number'] ?? '');
+            $sheet->setCellValue("D{$rowNum}", $row['line'] ?? '');
+            $sheet->setCellValue("E{$rowNum}", $row['tgl_bln_thn'] ?? '');
+            $sheet->setCellValue("F{$rowNum}", $qty);
+            $sheet->setCellValue("G{$rowNum}", $hargaUnit);
+            $sheet->setCellValue("H{$rowNum}", $totalHarga);
+
+            $rowNum++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'rekap_data_scrap_fa.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment; filename=\"{$filename}\"");
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+    }
+    
     public function getPartNumbersByKomponenFA($model, $komponen)
     {
         $partNumbers = $this->PartNumberKompModel->getPartNumbersByKomponen($model, $komponen);
         return $this->response->setJSON(['part_numbers' => $partNumbers]);
     }
+
+    public function getPartNumbersByKomponen($model, $komponen)
+    {
+        $partNumbers = $this->UserModelFA->getPartNumbersByModelAndKomponen($model, $komponen);
+        return $this->response->setJSON(['part_numbers' => $partNumbers]);
+    }   
     
 
     public function get_record()

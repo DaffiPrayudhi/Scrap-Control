@@ -10,7 +10,7 @@ class UserModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'array';
 
-    protected $allowedFields = ['id','tgl_bln_thn', 'shift', 'model','line', 'part_number','scraptype','mesin','tipe_ng','remarks','qty'];
+    protected $allowedFields = ['id','tgl_bln_thn', 'shift', 'model','line', 'part_number','scraptype','mesin','tipe_ng','remarks','qty','total_harga'];
     
     public function insertData($data)
     {
@@ -762,7 +762,7 @@ class UserModel extends Model
         return $result ? $result['total_qty'] : 0;
     }
 
-    public function getFilteredScrapDataExcel($startDate, $endDate, $model = null, $mesin = null, $tipe_ng = null, $line = null)
+    public function getFilteredScrapDataExcel($startDate, $endDate, $model = null, $mesin = null, $tipe_ng = null, $line = null, $scraptype = null, $part_number = null)
     {
         $builder = $this->db->table($this->table);
 
@@ -785,6 +785,14 @@ class UserModel extends Model
 
         if ($line) {
             $builder->where('line', $line);  
+        }
+
+        if ($scraptype) {
+            $builder->where('scraptype', $scraptype);  
+        }
+
+        if ($part_number) {
+            $builder->where('part_number', $part_number);  
         }
         
         $builder->groupBy("model, mesin, line, part_number, shift, scraptype, tipe_ng, remarks, qty, CONVERT(VARCHAR, tgl_bln_thn, 23)");
@@ -811,9 +819,134 @@ class UserModel extends Model
     }
 
     public function deleteRecord($id)
-{
-    return $this->where('id', $id)->delete();
-}
+    {
+        return $this->where('id', $id)->delete();
+    }
+
+    public function getFilteredScrapDataWithPrice($startDate, $endDate, $model, $part_number, $mesin, $tipe_ng, $line, $scraptype)
+    {
+        $builder = $this->db->table('scrap_control_smt_update')
+            ->select('id, tgl_bln_thn, qty, model, mesin, scraptype, tipe_ng, part_number')
+            ->where('tgl_bln_thn >=', $startDate)
+            ->where('tgl_bln_thn <=', $endDate);
+
+        if ($model) {
+            $builder->where('model', $model);
+        }
+
+        if ($mesin) {
+            $builder->where('mesin', $mesin);
+        }
+
+        if ($part_number) {
+            $builder->where('part_number', $part_number);
+        }
+
+        if ($tipe_ng) {
+            $builder->where('tipe_ng', $tipe_ng);
+        }
+
+        if ($scraptype) {
+            $builder->where('scraptype', $scraptype);
+        }
+
+        if ($line) {
+            $builder->where('line', $line);
+        }
+
+        $builder->groupBy([
+            'id',
+            'tgl_bln_thn',
+            'qty',
+            'model',
+            'mesin',
+            'tipe_ng',
+            'scraptype',
+            'part_number',
+        ]);
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function getHargaSatuan($model, $line = null, $part_number = null, $scraptype = null)
+    {
+        $builder = $this->db->table('part_number_smt')
+                            ->select('SUM(harga) as harga')
+                            ->where('model', $model);
+                            
+        if (!empty($line)) {
+            $builder->where('line', $line);
+        }
+        if (!empty($scraptype)) {
+            $builder->where('scraptype', $scraptype);
+        }
+        if (!empty($part_number)) {
+            $builder->where('part_number', $part_number);
+        }
+        
+        return $builder->get()->getRowArray();
+    }
+
+    // public function getFilteredScrapDataWithPrice($startDate, $endDate, $model, $part_number, $mesin, $tipe_ng, $line, $scraptype)
+    // {
+    //     $builder = $this->db->table('scrap_control_smt_update')
+    //         ->select('scrap_control_smt_update.id, scrap_control_smt_update.tgl_bln_thn, scrap_control_smt_update.qty, scrap_control_smt_update.model, scrap_control_smt_update.mesin, scrap_control_smt_update.scraptype, scrap_control_smt_update.part_number, part_number_smt_update.harga,(scrap_control_smt_update.qty * part_number_smt_update.harga) as total_harga')
+    //         ->join('part_number_smt_update', 'scrap_control_smt_update.part_number = part_number_smt_update.part_number')
+    //         ->where('scrap_control_smt_update.tgl_bln_thn >=', $startDate)
+    //         ->where('scrap_control_smt_update.tgl_bln_thn <=', $endDate);
+
+    //     if ($model) {
+    //         $builder->where('scrap_control_smt_update.model', $model);
+    //     }
+
+    //     if ($mesin) {
+    //         $builder->where('scrap_control_smt_update.mesin', $mesin);
+    //     }
+
+    //     if ($part_number) {
+    //         $builder->where('scrap_control_smt_update.part_number', $part_number);
+    //     }
+
+    //     if ($tipe_ng) {
+    //         $builder->where('scrap_control_smt_update.tipe_ng', $tipe_ng);
+    //     }
+
+    //     if ($scraptype) {
+    //         $builder->where('scrap_control_smt_update.scraptype', $scraptype);
+    //     }
+
+    //     if ($line) {
+    //         $builder->where('scrap_control_smt_update.line', $line);
+    //     }
+
+    //     $builder->groupBy([
+    //         'scrap_control_smt_update.id',
+    //         'scrap_control_smt_update.tgl_bln_thn',
+    //         'scrap_control_smt_update.qty',
+    //         'scrap_control_smt_update.model',
+    //         'scrap_control_smt_update.mesin',
+    //         'scrap_control_smt_update.scraptype',
+    //         'scrap_control_smt_update.part_number',
+    //         'part_number_smt_update.harga',
+    //     ]);
+
+    //     return $builder->get()->getResultArray();
+    // }
+
+    public function getPartNumbersByModel($model, $line)
+    {
+        return $this->db->table('part_number_smt')     
+            ->select('part_number')
+            ->where('model', $model)
+            ->where('line', $line)
+            ->groupBy('part_number') 
+            ->get()
+            ->getResultArray();
+    }
+    
+    
+    
+    
 
 
 

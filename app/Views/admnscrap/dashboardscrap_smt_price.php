@@ -1,4 +1,4 @@
-<!-- File: app/Views/admnsmt/dashboardsmt.php -->
+<!-- File: app/Views/admnscrap/dashboardscrap.php -->
 <?= $this->extend('layout/admnscrap'); ?>
 
 <?= $this->section('title'); ?>
@@ -10,20 +10,20 @@ Dashboard Scrap Control
     <section class="content">
         <div class="row mt-3">
 
-            <div class="col-md-9">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">
                         <div class="container-fluid">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
-                                    <h3 class="card-title mb-0"><b>Grafik FA</b></h3>
+                                    <h3 class="card-title mb-0"><b>Grafik SMT Price</b></h3>
                                     <div class="dropdown ml-2">
                                         <button class="btn btn-secondary btn-smsa dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-caret-down"></i>
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_smt') ?>">Dashboard Scrap SMT</a>
-                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_fa') ?>">Dashboard Scrap FA</a>
+                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_smt_price') ?>">Dashboard Scrap SMT Price</a>
+                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_fa_price') ?>">Dashboard Scrap FA Price</a>
                                         </div>
                                     </div>
                                 </div>
@@ -34,16 +34,17 @@ Dashboard Scrap Control
                             </div>
                         </div>
                     </div>
+
                     <div class="card-body-sr">
                         <div class="chart-container mt-2">
-                            <form method="get" action="<?= site_url('admnscrap/dashboardscrap_fa') ?>" class="form-container">
+                            <form method="get" action="<?= site_url('admnscrap/dashboardscrap_smt_price') ?>" class="form-container">
                                 <div class="form-row">
-                                    <div class="form-group col-sm-2">
-                                        <label for="start_date">Start Date</label>
+                                    <div class="form-group col-md-1">
+                                        <label for="start_date">Start</label>
                                         <input type="date" class="form-control" id="start_date" style="font-size: 14px" name="start_date" value="<?= esc($filters['start_date']) ?>">
                                     </div>
-                                    <div class="form-group col-md-2">
-                                        <label for="end_date">End Date</label>
+                                    <div class="form-group col-md-1">
+                                        <label for="end_date">End</label>
                                         <input type="date" class="form-control" id="end_date" name="end_date" style="margin-right: 20px; font-size: 14px" value="<?= esc($filters['end_date']) ?>">
                                     </div>
                                     <div class="col-md-2">
@@ -69,23 +70,45 @@ Dashboard Scrap Control
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label for="komponen" style="margin-right: 28px">Komponen</label>
-                                        <select id="komponen" name="komponen" class="form-control" style="margin-right: 28px; font-size: 14px">
-                                            <option value="">All Data Komponen</option>
-                                            <?php foreach ($komponens as $komponen): ?>
-                                                <option value="<?= esc($komponen) ?>" <?= ($filters['komponen'] === $komponen) ? 'selected' : '' ?>>
-                                                    <?= esc($komponen) ?>
+                                        <label for="mesin" style="margin-right: 28px">Mesin</label>
+                                        <select id="mesin" name="mesin" class="form-control" style="margin-right: 28px; font-size: 14px">
+                                            <option value="">All Data Mesin</option>
+                                            <?php foreach ($mesins as $mesin): ?>
+                                                <option value="<?= esc($mesin) ?>" <?= ($filters['mesin'] === $mesin) ? 'selected' : '' ?>>
+                                                    <?= esc($mesin) ?>
+                                                </option>
+                                            <?php endforeach; ?>    
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="part_number" style="margin-right: 28px">Part No</label>
+                                        <select id="part_number" name="part_number" class="form-control" style="margin-right: 28px; font-size: 14px">
+                                            <option value="">All Data Part Number</option>
+                                            <?php foreach ($part_numbers as $part_number): ?>
+                                                <option value="<?= esc($part_number) ?>" <?= ($filters['part_number'] === $part_number) ? 'selected' : '' ?>>
+                                                    <?= esc($part_number) ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
-                                        <label for="tipe_ng" style="margin-right: 28px">Tipe NG</label>
+                                    <div class="col-md-1">
+                                        <label for="tipe_ng" style="margin-right: 28px">NG  </label>
                                         <select id="tipe_ng" name="tipe_ng" class="form-control" style="margin-right: 28px; font-size: 14px">
                                             <option value="">All Tipe NG</option>
                                             <?php foreach ($tipe_ngs as $tipe_ng): ?>
                                                 <option value="<?= esc($tipe_ng) ?>" <?= ($filters['tipe_ng'] === $tipe_ng) ? 'selected' : '' ?>>
                                                     <?= esc($tipe_ng) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label for="scraptype" style="margin-right: 28px">Scrap</label>
+                                        <select id="scraptype" name="scraptype" class="form-control" style="margin-right: 28px; font-size: 14px">
+                                            <option value="">All Scrap</option>
+                                            <?php foreach ($scraptypes as $scraptype): ?>
+                                                <option value="<?= esc($scraptype) ?>" <?= ($filters['scraptype'] === $scraptype) ? 'selected' : '' ?>>
+                                                    <?= esc($scraptype) ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
@@ -104,7 +127,7 @@ Dashboard Scrap Control
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card card-qty">
                     <div class="card-header card-qty">
                         <div class="d-flex justify-content-between align-items-center">
@@ -114,67 +137,16 @@ Dashboard Scrap Control
                     <div class="card-body card-b-qty">
                         <p><strong>Line:</strong> <?= esc($filters['line']) ?: 'All' ?></p>
                         <p><strong>Model:</strong> <?= esc($filters['model']) ?: 'All' ?></p>
-                        <p><strong>Komponen:</strong> <?= esc($filters['komponen']) ?: 'All' ?></p>
+                        <p><strong>Mesin:</strong> <?= esc($filters['mesin']) ?: 'All' ?></p>
+                        <p><strong>Part Number:</strong> <?= esc($filters['part_number']) ?: 'All' ?></p>
+                        <p><strong>Harga Unit:</strong> Rp. <?= $hargaSatuan ? number_format($hargaSatuan, 0, ',', '.') : 'All' ?></p>
                         <p><strong>Tipe NG:</strong> <?= esc($filters['tipe_ng']) ?: 'All' ?></p>
+                        <p><strong>Scraptype:</strong> <?= esc($filters['scraptype']) ?: 'All' ?></p>
+                        <p><strong>Quantity:</strong> <?= esc($totalQty) ?> pcs</p>
                         <hr>
                         <div class="total-quantity-container">
-                            <div class="total-quantity-label">Total :</div>
-                            <div class="total-quantity-value"><?= esc($totalQty) ?></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card card-qty card-mt-3">
-                    <div class="card-header card-qty">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h3 class="card-title"><b>Perbandingan</b></h3>
-                        </div>
-                    </div>
-                    <div class="card-body card-p-qty">
-                        <canvas id="donutChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h3 class="card-title"><b>Status</b></h3>
-                            <div class="search-container">
-                                <input type="text" class="form-control search-box" placeholder="Search">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body-rs">
-                        <div class="table-responsive table-fixed-header">
-                            <table id="solder_paste_table" class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th class="sortable" data-column="model">Model<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="line">Line<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="tgl_bln_thn">Date<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="shift">Shift<span class="sort-icon"></span></th> 
-                                        <th class="sortable" data-column="komponen">Komponen<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="tipe_ng">NG type<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="remarks">Remarks<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="qty">Qty NG<span class="sort-icon"></span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($scrap_control as $row): ?>
-                                        <tr>
-                                            <td><?= $row['model'] ?></td>
-                                            <td><?= $row['line'] ?></td>
-                                            <td><?= date('d-m-Y', strtotime($row['tgl_bln_thn'])) ?></td>
-                                            <td><?= $row['shift'] ?></td>
-                                            <td><?= $row['komponen'] ?></td>
-                                            <td><?= $row['tipe_ng'] ?></td>
-                                            <td><?= $row['remarks'] ?></td>
-                                            <td><?= $row['qty'] ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                            <div class="total-quantity-label">Total Harga:</div>
+                            <div class="total-quantity-value">Rp. <?= number_format($totalHarga, 0, ',', '.') ?></div>
                         </div>
                     </div>
                 </div>
@@ -188,102 +160,20 @@ Dashboard Scrap Control
 
 <script>
     $('#downloadExcel').click(function() {
-    window.location.href = '<?= site_url('admnscrap/exportExcelFA') ?>?' + $.param({
+    window.location.href = '<?= site_url('admnscrap/exportExcelSMTPrice') ?>?' + $.param({
         start_date: '<?= esc($filters['start_date']) ?>',
         end_date: '<?= esc($filters['end_date']) ?>',
         model: '<?= esc($filters['model']) ?>',
-        komponen: '<?= esc($filters['komponen']) ?>',
+        mesin: '<?= esc($filters['mesin']) ?>',
+        part_number: '<?= esc($filters['part_number']) ?>',
+        scraptype: '<?= esc($filters['scraptype']) ?>',
         tipe_ng: '<?= esc($filters['tipe_ng']) ?>',
         line: '<?= esc($filters['line']) ?>'
     });
 });
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('donutChart').getContext('2d');
-
-    const currentMonthData = <?= json_encode($current_month_data) ?>;
-    const previousMonthData = <?= json_encode($previous_month_data) ?>;
-    const colors = <?= json_encode($colors) ?>;
-    const currentMonthName = '<?= $currentMonthName ?>';
-    const previousMonthName = '<?= $previousMonthName ?>';
-
-    if (currentMonthData.length === 0 && previousMonthData.length === 0) {
-        const message = "Tidak ada data yang dicari.";
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "rgba(255, 255, 255, 1)"; 
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        
-        ctx.fillText(message, ctx.canvas.width / 2, ctx.canvas.height / 2);
-        return;
-    }
-
-    const labels = [...new Set([...currentMonthData.map(item => item.model), ...previousMonthData.map(item => item.model)])];
-    
-    const currentMonthDataMap = currentMonthData.reduce((acc, item) => {
-        acc[item.model] = item.total_qty;
-        return acc;
-    }, {});
-
-    const previousMonthDataMap = previousMonthData.reduce((acc, item) => {
-        acc[item.model] = item.total_qty;
-        return acc;
-    }, {});
-
-    const data = labels.map(label => ({
-        label: label,
-        data: [currentMonthDataMap[label] || 0, previousMonthDataMap[label] || 0],
-        backgroundColor: [
-            colors[label] || 'rgba(75, 192, 192, 0.6)', 
-            'rgba(128, 128, 128, 0.6)' 
-        ],
-        borderColor: '#fff',
-        borderWidth: 2
-    }));
-
-    const donutChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [currentMonthName, previousMonthName],
-            datasets: data
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    display: false,
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const dataset = tooltipItem.dataset;
-                            const value = dataset.data[tooltipItem.dataIndex];
-                            const label = dataset.label;
-                            const monthLabel = tooltipItem.dataIndex === 0 ? currentMonthName : previousMonthName;
-                            return `${label} (${monthLabel}): ${value} units`;
-                        }
-                    },
-                    bodyFont: {
-                        size: 11
-                    },
-                    padding: 5,
-                    displayColors: false,
-                    titleFont: {
-                        size: 11
-                    }
-                }
-            }
-        }
-    });
-});
-</script>
-
-<script>
+<!-- <script>
     $(document).ready(function() {
         const data = <?= json_encode($scrap_chart_data) ?>;
         const colors = <?= json_encode($colors) ?>;
@@ -299,15 +189,15 @@ Dashboard Scrap Control
             date.setDate(date.getDate() + 1);
         }
 
-        const hasFilters = <?= json_encode(!empty($filters['line']) || !empty($filters['model']) || !empty($filters['komponen']) || !empty($filters['tipe_ng'])) ?>;
+        const hasFilters = <?= json_encode(!empty($filters['model']) || !empty($filters['mesin']) || !empty($filters['part_number']) || !empty($filters['tipe_ng'])) ?>;
         const datasets = {};
 
         data.forEach(item => {
-            const key = hasFilters ? `${item.model}-${item.komponen}` : item.model;
+            const key = hasFilters ? `${item.model}-${item.mesin}-${item.part_number}-${item.qty}` : item.model;
 
             if (!datasets[key]) {
                 datasets[key] = {
-                    label: hasFilters ? `${item.model} - ${item.komponen}` : item.model,
+                    label: hasFilters ? `${item.model} - ${item.mesin} - ${item.part_number} - ${item.qty}` : item.model,
                     data: Array(labels.length).fill(0),
                     backgroundColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
                     borderColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
@@ -315,14 +205,14 @@ Dashboard Scrap Control
                 };
             }
 
-            const itemDate = new Date(item.date);
+            const itemDate = new Date(item.tgl_bln_thn);
             const dateIndex = labels.indexOf(`${String(itemDate.getDate()).padStart(2, '0')}/${String(itemDate.getMonth() + 1).padStart(2, '0')}`);
             if (dateIndex !== -1) {
-                datasets[key].data[dateIndex] = item.total_qty;
+                datasets[key].data[dateIndex] = item.total_harga;
             }
         });
 
-        const suggestedMax = hasFilters ? 10 : 30;
+        const suggestedMax = hasFilters ? 10 : 1000;
 
         const ctx = document.getElementById('scrapChart').getContext('2d');
         const scrapChart = new Chart(ctx, {
@@ -349,7 +239,7 @@ Dashboard Scrap Control
                         suggestedMax: suggestedMax,
                         title: {
                             display: true,
-                            text: 'Quantity',
+                            text: 'Harga ( Rp. )',
                             font: {
                                 weight: 'bold'
                             }
@@ -365,14 +255,120 @@ Dashboard Scrap Control
         });
 
         $('#downloadChart').click(function() {
-            const link = document.createElement('a');  
+            const link = document.createElement('a');
             link.href = scrapChart.toBase64Image();
             link.download = 'scrap_chart.png';
             link.click();
         });
 
         $('#resetFilters').click(function() {
-            window.location.href = '<?= site_url('admnscrap/dashboardscrap_fa') ?>';
+            window.location.href = '<?= site_url('admnscrap/dashboardscrap_smt_price') ?>';
+        });
+    });
+</script> -->
+
+<script>
+    $(document).ready(function() {
+        const data = <?= json_encode($scrap_chart_data) ?>;
+        const colors = <?= json_encode($colors) ?>;
+        const hargaSatuan = <?= json_encode($hargaSatuan) ?>;
+        const hargaSatuanByModel = <?= json_encode($hargaSatuanByModel ?? []) ?>;
+        const isModelFiltered = <?= json_encode($isModelFiltered) ?>;
+        
+        const startDate = new Date('<?= esc($filters['start_date']) ?>');
+        const endDate = new Date('<?= esc($filters['end_date']) ?>');
+        
+        const labels = [];
+        let date = new Date(startDate);
+        while (date <= endDate) {
+            labels.push(
+                `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+            );
+            date.setDate(date.getDate() + 1);
+        }
+
+        const hasFilters = <?= json_encode(!empty($filters['model']) || !empty($filters['mesin']) || !empty($filters['part_number']) || !empty($filters['tipe_ng']) || !empty($filters['line']) || !empty($filters['scraptype'])) ?>;
+        const datasets = {};
+
+        data.forEach(item => {
+            const key = isModelFiltered 
+                ? `${item.model}-${item.mesin}-${item.part_number}-${item.tipe_ng}-${item.qty}` 
+                : item.model;
+
+            if (!datasets[key]) {
+                datasets[key] = {
+                    label: isModelFiltered 
+                        ? `${item.model} - ${item.mesin} - ${item.part_number} - ${item.tipe_ng} - ${item.qty}` 
+                        : item.model,
+                    data: Array(labels.length).fill(0),
+                    backgroundColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
+                    borderColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 1
+                };
+            }
+
+            const itemDate = new Date(item.tgl_bln_thn);
+            const dateLabel = `${String(itemDate.getDate()).padStart(2, '0')}/${String(itemDate.getMonth() + 1).padStart(2, '0')}`;
+            const dateIndex = labels.indexOf(dateLabel);
+            if (dateIndex !== -1) {
+                const unitPrice = isModelFiltered 
+                    ? (parseFloat(hargaSatuan) || 0) 
+                    : (hargaSatuanByModel[item.model] ? parseFloat(hargaSatuanByModel[item.model]) : 0);
+                datasets[key].data[dateIndex] += (item.qty * unitPrice);
+            }
+        });
+
+        const suggestedMax = isModelFiltered ? 100 : 15000000;
+
+        const ctx = document.getElementById('scrapChart').getContext('2d');
+        const scrapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: Object.values(datasets)
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tanggal',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: suggestedMax,
+                        title: {
+                            display: true,
+                            text: 'Harga ( Rp. )',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: !hasFilters,
+                    }
+                }
+            }
+        });
+
+        $('#downloadChart').click(function() {
+            const link = document.createElement('a');
+            link.href = scrapChart.toBase64Image();
+            link.download = 'scrap_chart.png';
+            link.click();
+        });
+
+        $('#resetFilters').click(function() {
+            window.location.href = '<?= site_url('admnscrap/dashboardscrap_smt_price') ?>';
         });
     });
 </script>
@@ -381,15 +377,15 @@ Dashboard Scrap Control
     document.getElementById('line').addEventListener('change', function() {
     var line = this.value;
     var modelSelect = document.getElementById('model');
-    var komponenSelect = document.getElementById('komponen');
+    var partNumberSelect = document.getElementById('part_number');
     var tipeNgSelect = document.getElementById('tipe_ng');
 
     modelSelect.innerHTML = '<option value="">All Data Model</option>';
-    komponenSelect.innerHTML = '<option value="">All Data Komponen</option>';
+    partNumberSelect.innerHTML = '<option value="">All Data Part Number</option>';
     tipeNgSelect.innerHTML = '<option value="">All Tipe NG</option>';
 
     if (line) {
-        fetch('<?= base_url('user/getModelsByLineFADB'); ?>/' + encodeURIComponent(line))
+        fetch('<?= base_url('user/getModelByLine'); ?>/' + encodeURIComponent(line))
             .then(response => response.json())
             .then(data => {
                 data.models.forEach(model => {
@@ -398,49 +394,46 @@ Dashboard Scrap Control
                     option.text = model.model;
                     modelSelect.add(option);
                 });
-                // Preselect the model if it was previously selected
-                modelSelect.value = '<?= esc($filters['model']) ?>';
+                if ('<?= esc($filters['model']) ?>' !== '') {
+                    modelSelect.value = '<?= esc($filters['model']) ?>';
+                }
                 modelSelect.dispatchEvent(new Event('change'));
             })
             .catch(error => console.error('Error:', error));
     }
 });
 
-document.getElementById('model').addEventListener('change', function() {
-    var model = this.value;
-    var komponenSelect = document.getElementById('komponen');
+document.getElementById('model').addEventListener('change', function () {
     var line = document.getElementById('line').value;
-    var tipeNgSelect = document.getElementById('tipe_ng');
+    var model = this.value; 
+    var partNumberSelect = document.getElementById('part_number');
 
-    komponenSelect.innerHTML = '<option value="">All Data Komponen</option>';
-    tipeNgSelect.innerHTML = '<option value="">All Tipe NG</option>';
+    partNumberSelect.innerHTML = '<option value="">All Data Part Number</option>';
 
-    if (model && line) {
-        fetch('<?= base_url('user/getPartNumbersByModelAndLineFADB'); ?>/' + encodeURIComponent(model) + '/' + encodeURIComponent(line))
+    if (line && model) {
+        fetch(`<?= base_url('user/getPartNumbersByModel'); ?>/${encodeURIComponent(model)}/${encodeURIComponent(line)}`)
             .then(response => response.json())
             .then(data => {
-                data.komponens.forEach(part => {
+                data.part_numbers.forEach(part_number => {
                     var option = document.createElement('option');
-                    option.value = part.komponen;
-                    option.text = part.komponen;
-                    komponenSelect.add(option);
+                    option.value = part_number.part_number;
+                    option.text = part_number.part_number;
+                    partNumberSelect.add(option);
                 });
-                // Preselect the komponen if it was previously selected
-                komponenSelect.value = '<?= esc($filters['komponen']) ?>';
-                komponenSelect.dispatchEvent(new Event('change'));
+                partNumberSelect.value = '<?= esc($filters['part_number']) ?>';
             })
             .catch(error => console.error('Error:', error));
     }
 });
 
-document.getElementById('komponen').addEventListener('change', function() {
-    var komponen = this.value;
+document.getElementById('mesin').addEventListener('change', function() {
+    var mesin = this.value;
     var tipeNgSelect = document.getElementById('tipe_ng');
 
     tipeNgSelect.innerHTML = '<option value="">All Tipe NG</option>';
 
-    if (komponen) {
-        fetch('<?= base_url('user/getTipeNgByKomponenDB'); ?>/' + encodeURIComponent(komponen))
+    if (mesin) {
+        fetch('<?= base_url('user/getTipeNgByMesin'); ?>/' + encodeURIComponent(mesin))
             .then(response => response.json())
             .then(data => {
                 data.tipe_ngs.forEach(tipe_ng => {
@@ -449,18 +442,18 @@ document.getElementById('komponen').addEventListener('change', function() {
                     option.text = tipe_ng.tipe_ng;
                     tipeNgSelect.add(option);
                 });
-                // Preselect the tipe_ng if it was previously selected
-                tipeNgSelect.value = '<?= esc($filters['tipe_ng']) ?>';
+                if ('<?= esc($filters['tipe_ng']) ?>' !== '') {
+                    tipeNgSelect.value = '<?= esc($filters['tipe_ng']) ?>';
+                }
             })
             .catch(error => console.error('Error:', error));
     }
 });
 
-// Initialize dropdowns on page load
 window.addEventListener('load', function() {
     document.getElementById('line').dispatchEvent(new Event('change'));
+    document.getElementById('mesin').dispatchEvent(new Event('change'));
 });
-
 </script>
 
 <script>
@@ -576,8 +569,6 @@ window.addEventListener('load', function() {
 
 </script>
 
-
-
 <style>
 
 .dropdown-toggle::after {
@@ -610,13 +601,6 @@ window.addEventListener('load', function() {
     border-color: #0069aa;
     color: #fff; 
     box-shadow: none;
-}
-
-#donutChart {
-    max-width: 72%; 
-    height: auto; 
-    max-height: 300px; 
-    margin: 0 auto;
 }
     
 .card-qty {
@@ -681,7 +665,7 @@ hr {
 }
 
 .total-quantity-value {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #fff;
     margin-bottom: 5px;
@@ -835,7 +819,7 @@ canvas {
 }
 
 .card-body {
-    max-height: 280px;
+    max-height: 600px;
     overflow-y: hidden;
     overflow-x: hidden;
     padding: 10px;
@@ -985,6 +969,5 @@ td.right-2 {
     }
 }
 </style>
-
 
 <?= $this->endSection(); ?>

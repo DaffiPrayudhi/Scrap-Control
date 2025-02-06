@@ -30,7 +30,7 @@ class Database extends Config
         'username'     => 'aviadmin',
         'password'     => 'zdr12cs!',
         'database'     => 'cias',
-        'DBDriver'     => 'sqlserv',
+        'DBDriver'     => 'sqlsrv',
         'DBPrefix'     => '',
         'pConnect'     => false,
         'DBDebug'      => true,

@@ -10,20 +10,20 @@ Dashboard Scrap Control
     <section class="content">
         <div class="row mt-3">
 
-            <div class="col-md-9">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">
                         <div class="container-fluid">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
-                                    <h3 class="card-title mb-0"><b>Grafik FA</b></h3>
+                                    <h3 class="card-title mb-0"><b>Grafik FA Price</b></h3>
                                     <div class="dropdown ml-2">
                                         <button class="btn btn-secondary btn-smsa dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-caret-down"></i>
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_smt') ?>">Dashboard Scrap SMT</a>
-                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_fa') ?>">Dashboard Scrap FA</a>
+                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_smt_price') ?>">Dashboard Scrap SMT Price</a>
+                                            <a class="dropdown-item" href="<?= site_url('admnscrap/dashboardscrap_fa_price') ?>">Dashboard Scrap FA Price</a>
                                         </div>
                                     </div>
                                 </div>
@@ -36,14 +36,14 @@ Dashboard Scrap Control
                     </div>
                     <div class="card-body-sr">
                         <div class="chart-container mt-2">
-                            <form method="get" action="<?= site_url('admnscrap/dashboardscrap_fa') ?>" class="form-container">
+                            <form method="get" action="<?= site_url('admnscrap/dashboardscrap_fa_price') ?>" class="form-container">
                                 <div class="form-row">
-                                    <div class="form-group col-sm-2">
-                                        <label for="start_date">Start Date</label>
+                                    <div class="form-group col-md-1">
+                                        <label for="start_date">Start</label>
                                         <input type="date" class="form-control" id="start_date" style="font-size: 14px" name="start_date" value="<?= esc($filters['start_date']) ?>">
                                     </div>
-                                    <div class="form-group col-md-2">
-                                        <label for="end_date">End Date</label>
+                                    <div class="form-group col-md-1">
+                                        <label for="end_date">End</label>
                                         <input type="date" class="form-control" id="end_date" name="end_date" style="margin-right: 20px; font-size: 14px" value="<?= esc($filters['end_date']) ?>">
                                     </div>
                                     <div class="col-md-2">
@@ -80,6 +80,17 @@ Dashboard Scrap Control
                                         </select>
                                     </div>
                                     <div class="col-md-2">
+                                        <label for="part_number" style="margin-right: 28px">Part No</label>
+                                        <select id="part_number" name="part_number" class="form-control" style="margin-right: 28px; font-size: 14px">
+                                            <option value="">All Data Part Number</option>
+                                            <?php foreach ($part_numbers as $part_number): ?>
+                                                <option value="<?= esc($part_number) ?>" <?= ($filters['part_number'] === $part_number) ? 'selected' : '' ?>>
+                                                    <?= esc($part_number) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
                                         <label for="tipe_ng" style="margin-right: 28px">Tipe NG</label>
                                         <select id="tipe_ng" name="tipe_ng" class="form-control" style="margin-right: 28px; font-size: 14px">
                                             <option value="">All Tipe NG</option>
@@ -104,77 +115,25 @@ Dashboard Scrap Control
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="card card-qty">
                     <div class="card-header card-qty">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h3 class="card-title"><b>Total Summary</b></h3>
+                            <h3 class="card-title"><b>Keterangan Harga</b></h3>
                         </div>
                     </div>
                     <div class="card-body card-b-qty">
                         <p><strong>Line:</strong> <?= esc($filters['line']) ?: 'All' ?></p>
                         <p><strong>Model:</strong> <?= esc($filters['model']) ?: 'All' ?></p>
                         <p><strong>Komponen:</strong> <?= esc($filters['komponen']) ?: 'All' ?></p>
+                        <p><strong>Part Number:</strong> <?= esc($filters['part_number']) ?: 'All' ?></p>
+                        <p><strong>Harga Unit:</strong> Rp. <?= $hargaSatuan ? number_format($hargaSatuan, 0, ',', '.') : 'All' ?></p>
                         <p><strong>Tipe NG:</strong> <?= esc($filters['tipe_ng']) ?: 'All' ?></p>
+                        <p><strong>Quantity:</strong> <?= esc($totalQty) ?> pcs</p>
                         <hr>
                         <div class="total-quantity-container">
-                            <div class="total-quantity-label">Total :</div>
-                            <div class="total-quantity-value"><?= esc($totalQty) ?></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card card-qty card-mt-3">
-                    <div class="card-header card-qty">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h3 class="card-title"><b>Perbandingan</b></h3>
-                        </div>
-                    </div>
-                    <div class="card-body card-p-qty">
-                        <canvas id="donutChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h3 class="card-title"><b>Status</b></h3>
-                            <div class="search-container">
-                                <input type="text" class="form-control search-box" placeholder="Search">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body-rs">
-                        <div class="table-responsive table-fixed-header">
-                            <table id="solder_paste_table" class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th class="sortable" data-column="model">Model<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="line">Line<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="tgl_bln_thn">Date<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="shift">Shift<span class="sort-icon"></span></th> 
-                                        <th class="sortable" data-column="komponen">Komponen<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="tipe_ng">NG type<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="remarks">Remarks<span class="sort-icon"></span></th>
-                                        <th class="sortable" data-column="qty">Qty NG<span class="sort-icon"></span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($scrap_control as $row): ?>
-                                        <tr>
-                                            <td><?= $row['model'] ?></td>
-                                            <td><?= $row['line'] ?></td>
-                                            <td><?= date('d-m-Y', strtotime($row['tgl_bln_thn'])) ?></td>
-                                            <td><?= $row['shift'] ?></td>
-                                            <td><?= $row['komponen'] ?></td>
-                                            <td><?= $row['tipe_ng'] ?></td>
-                                            <td><?= $row['remarks'] ?></td>
-                                            <td><?= $row['qty'] ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                            <div class="total-quantity-label">Total Harga:</div>
+                            <div class="total-quantity-value">Rp. <?= number_format($totalHarga, 0, ',', '.') ?></div>
                         </div>
                     </div>
                 </div>
@@ -188,97 +147,13 @@ Dashboard Scrap Control
 
 <script>
     $('#downloadExcel').click(function() {
-    window.location.href = '<?= site_url('admnscrap/exportExcelFA') ?>?' + $.param({
+    window.location.href = '<?= site_url('admnscrap/exportExcelFAPrice') ?>?' + $.param({
         start_date: '<?= esc($filters['start_date']) ?>',
         end_date: '<?= esc($filters['end_date']) ?>',
         model: '<?= esc($filters['model']) ?>',
         komponen: '<?= esc($filters['komponen']) ?>',
         tipe_ng: '<?= esc($filters['tipe_ng']) ?>',
         line: '<?= esc($filters['line']) ?>'
-    });
-});
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('donutChart').getContext('2d');
-
-    const currentMonthData = <?= json_encode($current_month_data) ?>;
-    const previousMonthData = <?= json_encode($previous_month_data) ?>;
-    const colors = <?= json_encode($colors) ?>;
-    const currentMonthName = '<?= $currentMonthName ?>';
-    const previousMonthName = '<?= $previousMonthName ?>';
-
-    if (currentMonthData.length === 0 && previousMonthData.length === 0) {
-        const message = "Tidak ada data yang dicari.";
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "rgba(255, 255, 255, 1)"; 
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        
-        ctx.fillText(message, ctx.canvas.width / 2, ctx.canvas.height / 2);
-        return;
-    }
-
-    const labels = [...new Set([...currentMonthData.map(item => item.model), ...previousMonthData.map(item => item.model)])];
-    
-    const currentMonthDataMap = currentMonthData.reduce((acc, item) => {
-        acc[item.model] = item.total_qty;
-        return acc;
-    }, {});
-
-    const previousMonthDataMap = previousMonthData.reduce((acc, item) => {
-        acc[item.model] = item.total_qty;
-        return acc;
-    }, {});
-
-    const data = labels.map(label => ({
-        label: label,
-        data: [currentMonthDataMap[label] || 0, previousMonthDataMap[label] || 0],
-        backgroundColor: [
-            colors[label] || 'rgba(75, 192, 192, 0.6)', 
-            'rgba(128, 128, 128, 0.6)' 
-        ],
-        borderColor: '#fff',
-        borderWidth: 2
-    }));
-
-    const donutChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [currentMonthName, previousMonthName],
-            datasets: data
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    display: false,
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            const dataset = tooltipItem.dataset;
-                            const value = dataset.data[tooltipItem.dataIndex];
-                            const label = dataset.label;
-                            const monthLabel = tooltipItem.dataIndex === 0 ? currentMonthName : previousMonthName;
-                            return `${label} (${monthLabel}): ${value} units`;
-                        }
-                    },
-                    bodyFont: {
-                        size: 11
-                    },
-                    padding: 5,
-                    displayColors: false,
-                    titleFont: {
-                        size: 11
-                    }
-                }
-            }
-        }
     });
 });
 </script>
@@ -299,15 +174,15 @@ Dashboard Scrap Control
             date.setDate(date.getDate() + 1);
         }
 
-        const hasFilters = <?= json_encode(!empty($filters['line']) || !empty($filters['model']) || !empty($filters['komponen']) || !empty($filters['tipe_ng'])) ?>;
+        const hasFilters = <?= json_encode(!empty($filters['line']) || !empty($filters['model']) || !empty($filters['komponen']) || !empty($filters['part_number']) || !empty($filters['tipe_ng'])) ?>;
         const datasets = {};
 
         data.forEach(item => {
-            const key = hasFilters ? `${item.model}-${item.komponen}` : item.model;
-
+            const key = hasFilters ? `${item.model}-${item.komponen}-${item.part_number}-${item.qty}` : item.model;
+            
             if (!datasets[key]) {
                 datasets[key] = {
-                    label: hasFilters ? `${item.model} - ${item.komponen}` : item.model,
+                    label: hasFilters ? `${item.model} - ${item.komponen} - ${item.part_number} - ${item.qty}` : item.model,
                     data: Array(labels.length).fill(0),
                     backgroundColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
                     borderColor: colors[item.model] || 'rgba(0, 0, 0, 0.1)',
@@ -315,14 +190,15 @@ Dashboard Scrap Control
                 };
             }
 
-            const itemDate = new Date(item.date);
+            const itemDate = new Date(item.tgl_bln_thn);  
             const dateIndex = labels.indexOf(`${String(itemDate.getDate()).padStart(2, '0')}/${String(itemDate.getMonth() + 1).padStart(2, '0')}`);
             if (dateIndex !== -1) {
-                datasets[key].data[dateIndex] = item.total_qty;
+                datasets[key].data[dateIndex] = item.total_harga;  
             }
         });
 
-        const suggestedMax = hasFilters ? 10 : 30;
+
+        const suggestedMax = hasFilters ? 10 : 300000;
 
         const ctx = document.getElementById('scrapChart').getContext('2d');
         const scrapChart = new Chart(ctx, {
@@ -349,7 +225,7 @@ Dashboard Scrap Control
                         suggestedMax: suggestedMax,
                         title: {
                             display: true,
-                            text: 'Quantity',
+                            text: 'Harga (Rp.)',
                             font: {
                                 weight: 'bold'
                             }
@@ -372,7 +248,7 @@ Dashboard Scrap Control
         });
 
         $('#resetFilters').click(function() {
-            window.location.href = '<?= site_url('admnscrap/dashboardscrap_fa') ?>';
+            window.location.href = '<?= site_url('admnscrap/dashboardscrap_fa_price') ?>';
         });
     });
 </script>
@@ -381,11 +257,13 @@ Dashboard Scrap Control
     document.getElementById('line').addEventListener('change', function() {
     var line = this.value;
     var modelSelect = document.getElementById('model');
-    var komponenSelect = document.getElementById('komponen');
+    var komponenSelect = document.getElementById('komponen');   
+    var partNumberSelect = document.getElementById('part_number');   
     var tipeNgSelect = document.getElementById('tipe_ng');
 
     modelSelect.innerHTML = '<option value="">All Data Model</option>';
     komponenSelect.innerHTML = '<option value="">All Data Komponen</option>';
+    partNumberSelect.innerHTML = '<option value="">All Data Part Number</option>';
     tipeNgSelect.innerHTML = '<option value="">All Tipe NG</option>';
 
     if (line) {
@@ -409,10 +287,12 @@ Dashboard Scrap Control
 document.getElementById('model').addEventListener('change', function() {
     var model = this.value;
     var komponenSelect = document.getElementById('komponen');
+    var partNumberSelect = document.getElementById('part_number'); 
     var line = document.getElementById('line').value;
     var tipeNgSelect = document.getElementById('tipe_ng');
 
     komponenSelect.innerHTML = '<option value="">All Data Komponen</option>';
+    partNumberSelect.innerHTML = '<option value="">All Data Part Number</option>';
     tipeNgSelect.innerHTML = '<option value="">All Tipe NG</option>';
 
     if (model && line) {
@@ -428,6 +308,29 @@ document.getElementById('model').addEventListener('change', function() {
                 // Preselect the komponen if it was previously selected
                 komponenSelect.value = '<?= esc($filters['komponen']) ?>';
                 komponenSelect.dispatchEvent(new Event('change'));
+            })
+            .catch(error => console.error('Error:', error));
+    }
+});
+
+document.getElementById('komponen').addEventListener('change', function() {
+    var komponen = this.value;
+    var model = document.getElementById('model').value; 
+    var partNumberSelect = document.getElementById('part_number');
+
+    partNumberSelect.innerHTML = '<option value="">All Data Part Number</option>';
+
+    if (komponen && model) {
+        fetch(`<?= base_url('user/getPartNumbersByKomponen'); ?>/${encodeURIComponent(model)}/${encodeURIComponent(komponen)}`)
+            .then(response => response.json())
+            .then(data => {
+                data.part_numbers.forEach(part_number => {
+                    var option = document.createElement('option');
+                    option.value = part_number.part_number;
+                    option.text = part_number.part_number;
+                    partNumberSelect.add(option);
+                });
+                partNumberSelect.value = '<?= esc($filters['part_number']) ?>';
             })
             .catch(error => console.error('Error:', error));
     }
@@ -573,10 +476,7 @@ window.addEventListener('load', function() {
         return headers.findIndex(header => header.getAttribute('data-column') === columnName) + 1;
     }
 });
-
 </script>
-
-
 
 <style>
 
@@ -610,13 +510,6 @@ window.addEventListener('load', function() {
     border-color: #0069aa;
     color: #fff; 
     box-shadow: none;
-}
-
-#donutChart {
-    max-width: 72%; 
-    height: auto; 
-    max-height: 300px; 
-    margin: 0 auto;
 }
     
 .card-qty {
@@ -681,7 +574,7 @@ hr {
 }
 
 .total-quantity-value {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #fff;
     margin-bottom: 5px;
@@ -835,7 +728,7 @@ canvas {
 }
 
 .card-body {
-    max-height: 280px;
+    max-height: 600px;
     overflow-y: hidden;
     overflow-x: hidden;
     padding: 10px;
@@ -985,6 +878,5 @@ td.right-2 {
     }
 }
 </style>
-
 
 <?= $this->endSection(); ?>
