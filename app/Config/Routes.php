@@ -64,7 +64,9 @@ $routes->get('user/chartData', 'User::chartData');
 $routes->get('user/getScrapChartData', 'User::getScrapChartData'); 
 $routes->get('user/downloadExcel', 'User::downloadExcel');
 $routes->get('admnscrap/exportExcelSMT', 'User::exportExcelSMT');
+$routes->get('admnscrap/exportExcelSMTPrice', 'User::exportExcelSMTPrice');
 $routes->get('admnscrap/exportExcelFA', 'User::exportExcelFA');
+$routes->get('admnscrap/exportExcelFAPrice', 'User::exportExcelFAPrice');
 
 $routes->get('admnscrap/get_record', 'User::get_record');
 $routes->post('admnscrap/update_record', 'User::update_record');

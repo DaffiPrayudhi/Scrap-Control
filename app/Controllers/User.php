@@ -590,7 +590,6 @@ class User extends Controller
     
         return view('admnscrap/dashboardscrap_smt_price', $data);
     }
-    
 
     public function part_number_scrap()
     {
@@ -1612,47 +1611,174 @@ class User extends Controller
     public function exportExcelSMT()
     {
         $startDate = $this->request->getGet('start_date');
+        $endDate = $this->request->getGet('end_date');
+        $model = $this->request->getGet('model');
+        $mesin = $this->request->getGet('mesin');
+        $part_number = $this->request->getGet('part_number');
+        $scraptype = $this->request->getGet('scraptype');
+        $tipe_ng = $this->request->getGet('tipe_ng');
+        $line = $this->request->getGet('line');
+
+        $data = $this->UserModel->getFilteredScrapDataExcel($startDate, $endDate, $model, $mesin, $tipe_ng, $line, $scraptype, $part_number);
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->setCellValue('A1', 'Model');
+        $sheet->setCellValue('B1', 'Line');
+        $sheet->setCellValue('C1', 'Part Number');
+        $sheet->setCellValue('D1', 'Date');
+        $sheet->setCellValue('E1', 'Shift');
+        $sheet->setCellValue('F1', 'Scrap Type');
+        $sheet->setCellValue('G1', 'Mesin');
+        $sheet->setCellValue('H1', 'Tipe NG');
+        $sheet->setCellValue('I1', 'Remarks');
+        $sheet->setCellValue('J1', 'Qty NG');
+        
+        $rowNum = 2;
+        foreach ($data as $row) {
+            $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
+            $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
+            $sheet->setCellValue('C' . $rowNum, $row['part_number'] ?? '');
+            $sheet->setCellValue('D' . $rowNum, $row['date'] ?? '');
+            $sheet->setCellValue('E' . $rowNum, $row['shift'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $row['scraptype'] ?? '');
+            $sheet->setCellValue('G' . $rowNum, $row['mesin'] ?? '');
+            $sheet->setCellValue('H' . $rowNum, $row['tipe_ng'] ?? ''); 
+            $sheet->setCellValue('I' . $rowNum, $row['remarks'] ?? '');
+            $sheet->setCellValue('J' . $rowNum, $row['qty'] ?? '');
+            $rowNum++;
+        }    
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'rekap_data_scrap_smt.xlsx';
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+    }
+
+    public function exportExcelSMTPrice()
+    {
+        $startDate   = $this->request->getGet('start_date');
+        $endDate     = $this->request->getGet('end_date');
+        $model       = $this->request->getGet('model');
+        $mesin       = $this->request->getGet('mesin');
+        $part_number = $this->request->getGet('part_number');
+        $scraptype   = $this->request->getGet('scraptype');
+        $tipe_ng     = $this->request->getGet('tipe_ng');
+        $line        = $this->request->getGet('line');
+
+        $data = $this->UserModel->getFilteredScrapDataExcel($startDate, $endDate, $model, $mesin, $tipe_ng, $line, $scraptype, $part_number);
+
+        $isModelFiltered = !empty($model);
+
+        if ($isModelFiltered) {
+            $hargaData = $this->UserModel->getHargaSatuan($model, $line, $part_number, $scraptype);
+            $unitPrice = $hargaData ? $hargaData['harga'] : 0;
+        } else {
+            $uniqueModels = [];
+            foreach ($data as $row) {
+                if (!in_array($row['model'], $uniqueModels)) {
+                    $uniqueModels[] = $row['model'];
+                }
+            }
+            $hargaSatuanByModel = [];
+            foreach ($uniqueModels as $m) {
+                $hargaData = $this->UserModel->getHargaSatuan($m);
+                $hargaSatuanByModel[$m] = $hargaData ? $hargaData['harga'] : 0;
+            }
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'Model');
+        $sheet->setCellValue('B1', 'Line');
+        $sheet->setCellValue('C1', 'Part Number');
+        $sheet->setCellValue('D1', 'Date');
+        $sheet->setCellValue('E1', 'Shift');
+        $sheet->setCellValue('F1', 'Scrap Type');
+        $sheet->setCellValue('G1', 'Mesin');
+        $sheet->setCellValue('H1', 'Tipe NG');
+        $sheet->setCellValue('I1', 'Remarks');
+        $sheet->setCellValue('J1', 'Qty NG');
+        $sheet->setCellValue('K1', 'Harga Unit');
+        $sheet->setCellValue('L1', 'Total Harga');
+
+        $rowNum = 2;
+        foreach ($data as $row) {
+            if ($isModelFiltered) {
+                $hargaUnit = $unitPrice;
+            } else {
+                $modelName = $row['model'];
+                $hargaUnit = isset($hargaSatuanByModel[$modelName]) ? $hargaSatuanByModel[$modelName] : 0;
+            }
+            $totalHarga = $row['qty'] * $hargaUnit;
+
+            $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
+            $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
+            $sheet->setCellValue('C' . $rowNum, $row['part_number'] ?? '');
+            $sheet->setCellValue('D' . $rowNum, $row['date'] ?? '');
+            $sheet->setCellValue('E' . $rowNum, $row['shift'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $row['scraptype'] ?? '');
+            $sheet->setCellValue('G' . $rowNum, $row['mesin'] ?? '');
+            $sheet->setCellValue('H' . $rowNum, $row['tipe_ng'] ?? '');
+            $sheet->setCellValue('I' . $rowNum, $row['remarks'] ?? '');
+            $sheet->setCellValue('J' . $rowNum, $row['qty'] ?? '');
+            $sheet->setCellValue('K' . $rowNum, $hargaUnit);
+            $sheet->setCellValue('L' . $rowNum, $totalHarga);
+            $rowNum++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'rekap_data_scrap_smt.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+    }
+
+    public function exportExcelFA()
+    {
+        $startDate = $this->request->getGet('start_date');
     $endDate = $this->request->getGet('end_date');
     $model = $this->request->getGet('model');
-    $mesin = $this->request->getGet('mesin');
-    $part_number = $this->request->getGet('part_number');
-    $scraptype = $this->request->getGet('scraptype');
+    $komponen = $this->request->getGet('komponen');
     $tipe_ng = $this->request->getGet('tipe_ng');
     $line = $this->request->getGet('line');
 
-    $data = $this->UserModel->getFilteredScrapDataExcel($startDate, $endDate, $model, $mesin, $tipe_ng, $line, $scraptype, $part_number);
+    $data = $this->UserModelFA->getFilteredScrapDataExcel($startDate, $endDate, $model, $komponen, $tipe_ng, $line);
 
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
     
     $sheet->setCellValue('A1', 'Model');
     $sheet->setCellValue('B1', 'Line');
-    $sheet->setCellValue('C1', 'Part Number');
-    $sheet->setCellValue('D1', 'Date');
-    $sheet->setCellValue('E1', 'Shift');
-    $sheet->setCellValue('F1', 'Scrap Type');
-    $sheet->setCellValue('G1', 'Mesin');
-    $sheet->setCellValue('H1', 'Tipe NG');
-    $sheet->setCellValue('I1', 'Remarks');
-    $sheet->setCellValue('J1', 'Qty NG');
+    $sheet->setCellValue('C1', 'Date');
+    $sheet->setCellValue('D1', 'Shift');
+    $sheet->setCellValue('E1', 'Komponen');
+    $sheet->setCellValue('F1', 'Tipe NG');
+    $sheet->setCellValue('G1', 'Remarks');
+    $sheet->setCellValue('H1', 'Qty NG');
     
     $rowNum = 2;
     foreach ($data as $row) {
         $sheet->setCellValue('A' . $rowNum, $row['model'] ?? '');
         $sheet->setCellValue('B' . $rowNum, $row['line'] ?? '');
-        $sheet->setCellValue('C' . $rowNum, $row['part_number'] ?? '');
-        $sheet->setCellValue('D' . $rowNum, $row['date'] ?? '');
-        $sheet->setCellValue('E' . $rowNum, $row['shift'] ?? '');
-        $sheet->setCellValue('F' . $rowNum, $row['scraptype'] ?? '');
-        $sheet->setCellValue('G' . $rowNum, $row['mesin'] ?? '');
-        $sheet->setCellValue('H' . $rowNum, $row['tipe_ng'] ?? ''); 
-        $sheet->setCellValue('I' . $rowNum, $row['remarks'] ?? '');
-        $sheet->setCellValue('J' . $rowNum, $row['qty'] ?? '');
+        $sheet->setCellValue('C' . $rowNum, $row['date'] ?? '');
+        $sheet->setCellValue('D' . $rowNum, $row['shift'] ?? '');
+        $sheet->setCellValue('E' . $rowNum, $row['komponen'] ?? '');
+        $sheet->setCellValue('F' . $rowNum, $row['tipe_ng'] ?? ''); 
+        $sheet->setCellValue('G' . $rowNum, $row['remarks'] ?? '');
+        $sheet->setCellValue('H' . $rowNum, $row['qty'] ?? '');
         $rowNum++;
     }    
 
     $writer = new Xlsx($spreadsheet);
-    $filename = 'rekap_data_scrap_smt.xlsx';
+    $filename = 'rekap_data_scrap_fa.xlsx';
     
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="' . $filename . '"');
@@ -1660,7 +1786,7 @@ class User extends Controller
     $writer->save('php://output');
     }
 
-    public function exportExcelFA()
+    public function exportExcelFAPrice()
     {
         $startDate = $this->request->getGet('start_date');
     $endDate = $this->request->getGet('end_date');

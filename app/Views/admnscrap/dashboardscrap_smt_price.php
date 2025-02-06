@@ -160,7 +160,7 @@ Dashboard Scrap Control
 
 <script>
     $('#downloadExcel').click(function() {
-    window.location.href = '<?= site_url('admnscrap/exportExcelSMT') ?>?' + $.param({
+    window.location.href = '<?= site_url('admnscrap/exportExcelSMTPrice') ?>?' + $.param({
         start_date: '<?= esc($filters['start_date']) ?>',
         end_date: '<?= esc($filters['end_date']) ?>',
         model: '<?= esc($filters['model']) ?>',
@@ -372,7 +372,6 @@ Dashboard Scrap Control
         });
     });
 </script>
-
 
 <script>
     document.getElementById('line').addEventListener('change', function() {
